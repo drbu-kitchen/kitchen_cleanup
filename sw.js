@@ -2,7 +2,8 @@
    The whole app is a handful of static files, so the service worker keeps a
    copy of all of them. A file added to the app must be added to SHELL too,
    or an installed copy will not have it offline. The page and
-   the four CSV files (shifts, students, roles, settings) are fetched fresh
+   the five CSV files (shifts, students, roles, settings and the
+   availability notes) are fetched fresh
    whenever there is a network (racing a 2.5-second timer, so a slow
    connection cannot hang the launch). So are the availability form's
    answers, a CSV published from a Google Sheet on another site (the link
@@ -13,7 +14,7 @@
    The new worker then replaces the old one and reloads any page the old one
    left open, so no phone is stuck on an old page asking for files that are
    gone. */
-var CACHE = "kitchen-v45";
+var CACHE = "kitchen-v46";
 var SHELL = [
   "./",
   "index.html",
@@ -21,6 +22,7 @@ var SHELL = [
   "students.csv",
   "roles.csv",
   "settings.csv",
+  "availability-notes.csv",
   "manifest.webmanifest",
   "icons/icon.svg",
   "icons/icon-32.png",
@@ -96,7 +98,7 @@ self.addEventListener("fetch", function (e) {
   }
 
   if (req.mode === "navigate") { e.respondWith(fresh(req, "index.html")); return; }
-  var csv = url.pathname.match(/\/(shifts|students|roles|settings)\.csv$/);
+  var csv = url.pathname.match(/\/(shifts|students|roles|settings|availability-notes)\.csv$/);
   if (csv) { e.respondWith(fresh(req, csv[1] + ".csv")); return; }
 
   /* Everything else (fonts, icons) never changes at its URL: cache first. */

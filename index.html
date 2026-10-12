@@ -69,6 +69,7 @@ window.kitchenTheme();
   --rust-deep:#8c2f12;    /* rust as text on light, always this, not --rust */
   --rust-on-dark:#d66a48; /* rust as text on near-black */
   --gold:#e0a93f;
+  --gold-edge:#a8741a;    /* the "!" mark's rim, so it holds 3:1 on white */
   --mark-bg:#14181f; --mark-fg:#ffffff;   /* the Today/Tomorrow marker: neutral, so no day hue swallows it */
   --rust-btn:#8c2f12;     /* rust under white text: the portal button, the badge */
   /* One hue per weekday (Mon first): a fill, a deeper ink for text, a wash. */
@@ -105,6 +106,7 @@ window.kitchenTheme();
   --line-soft:#262c35;
   --grid:#434b58;          /* table lines: seen, but quieter than text */
   --rust-deep:#ec8a66;    /* rust as text */
+  --gold-edge:#e0a93f;
   --mark-bg:#eceef1; --mark-fg:#14181f;
   --rust-btn:#a33a17;
   --k0:#d0582c; --k0-ink:#f0906b; --k0-w:rgba(240,144,107,.14);
@@ -265,12 +267,23 @@ p{margin:0}
 .who.set label{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
 .who.set .me-pill{display:flex;align-items:center;gap:8px;max-width:100%;padding:7px 14px 7px 12px;border:1px solid var(--line);border-radius:30px;
   background:var(--white);font-size:15px;font-weight:600;color:var(--ink)}
-.me-pill span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.me-pill span:not(.na){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .me-pill::before{content:"";flex:0 0 auto;width:16px;height:16px;background-color:var(--ink-3);
   -webkit-mask:var(--ic-me) center/contain no-repeat;mask:var(--ic-me) center/contain no-repeat}
 .me-pill::after{content:"";flex:0 0 auto;width:7px;height:7px;margin:-4px 2px 0 2px;border-right:2px solid var(--ink-2);border-bottom:2px solid var(--ink-2);transform:rotate(45deg)}
 .who.set select{position:absolute;top:0;left:0;width:100%;height:100%;max-width:none;padding:0;opacity:0}
 .who.mini{flex:none;align-self:flex-start;max-width:100%}
+/* the mark beside a name whose availability form is missing (the "!"
+   comes from CSS, so names copy and read cleanly), and, for that student,
+   a notice at the top of each tab with the form's link */
+.na{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;box-sizing:border-box;width:16px;height:16px;margin-left:6px;border-radius:50%;
+  border:1px solid var(--gold-edge);background:var(--gold);color:#14181f;font-size:11.5px;font-weight:800;line-height:1;vertical-align:1px}
+.na::before{content:"!"}
+.me-pill .na{margin-left:-2px}
+.nofill{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:10px 12px;border-left:4px solid var(--gold);border-radius:4px 10px 10px 4px;
+  background:var(--cream);font-size:14.5px;color:var(--ink-2)}
+.avt .nw{white-space:nowrap}
+.nofill a{color:var(--rust-deep);font-weight:600;white-space:nowrap}
 .who.mini:not(.has) .me-pill{border-style:dashed;color:var(--ink-2);font-weight:500}
 .who.set:focus-within .me-pill{outline:2px solid var(--rust-deep);outline-offset:2px}
 @media (max-width:359px){.title{column-gap:10px}.who.set .me-pill{padding-left:12px}.me-pill::before{display:none}}
@@ -543,6 +556,7 @@ p{margin:0}
         <select id="me" data-me><option value="">Choose your name…</option></select>
       </div>
     </div>
+    <div class="nofill screen-only" data-nofill hidden></div>
     <div class="glance" id="glance" hidden></div>
   </div></div>
   <div class="body"><div class="in" id="shifts-body"></div></div>
@@ -554,6 +568,7 @@ p{margin:0}
     <div class="head-top"><span class="eyebrow" data-t="avail_eyebrow"></span><span class="head-btns"><button type="button" class="theme-btn lang-btn" data-lang-btn></button><button type="button" class="theme-btn" data-theme-btn></button></span></div>
     <h1 data-t="avail_h1"></h1>
     <div class="who mini set screen-only" data-who><span class="me-pill" aria-hidden="true"></span><select data-me></select></div>
+    <div class="nofill screen-only" data-nofill hidden></div>
     <p class="lead" id="avail-lead" hidden></p>
   </div></div>
   <div class="body"><div class="in" id="avail-body"></div></div>
@@ -565,6 +580,7 @@ p{margin:0}
     <div class="head-top"><span class="eyebrow" data-t="co_eyebrow"></span><span class="head-btns"><button type="button" class="theme-btn lang-btn" data-lang-btn></button><button type="button" class="theme-btn" data-theme-btn></button></span></div>
     <h1 data-t="co_h1"></h1>
     <div class="who mini set screen-only" data-who><span class="me-pill" aria-hidden="true"></span><select data-me></select></div>
+    <div class="nofill screen-only" data-nofill hidden></div>
     <p class="lead" data-t="co_lead"></p>
   </div></div>
   <div class="body"><div class="in">
@@ -591,6 +607,7 @@ p{margin:0}
     <div class="head-top"><span class="eyebrow" data-t="ts_eyebrow"></span><span class="head-btns"><button type="button" class="theme-btn lang-btn" data-lang-btn></button><button type="button" class="theme-btn" data-theme-btn></button></span></div>
     <h1 data-t="ts_h1"></h1>
     <div class="who mini set screen-only" data-who><span class="me-pill" aria-hidden="true"></span><select data-me></select></div>
+    <div class="nofill screen-only" data-nofill hidden></div>
   </div></div>
   <div class="body"><div class="in">
     <div class="panel due">
@@ -663,7 +680,7 @@ p{margin:0}
     form: "", answers: "", contactList: ""
   };
   /* the shift files: who works when, who each student is, and the role rules */
-  var FILES = { shifts: "shifts.csv", students: "students.csv", roles: "roles.csv" };
+  var FILES = { shifts: "shifts.csv", students: "students.csv", roles: "roles.csv", notes: "availability-notes.csv" };
   var SETTINGS_FILE = "settings.csv", settingsProblems = [];
 
   /* English day names for the shift files and their checks; what the
@@ -688,7 +705,7 @@ p{margin:0}
       tab_shifts: "My shifts",
       tab_callout: "Call out",
       tab_availability: "My availability",
-      tab_timesheet: "Submit Timesheet",
+      tab_timesheet: "Resources",
       views: "Views",
       due_today: "(due today)",
       lang_label: "Language: {name}. Tap for {next}.",
@@ -828,6 +845,11 @@ p{margin:0}
       av_form_maybe: "<b>Maybe:</b> {days}. The backups who are available are asked before you.",
       av_form_change: "Have your plans changed? Fill in the form again. Your newest answers count.",
       av_form_open: "Open the availability form",
+      na_label: "Hasn't filled in the availability form",
+      nofill: "You haven't filled in the availability form yet.",
+      nofill_open: "Fill in the form",
+      av_form_work: "You already work on {days}, so you count as not available then.",
+      av_form_lower: "<b>Asked after the others:</b> {days}, because of what you wrote about those days.",
       status_avail: "Availability answers: {n} students.",
       status_avail_failed: "Availability answers: not loaded, so everyone counts as available."
     },
@@ -842,7 +864,7 @@ p{margin:0}
       tab_shifts: "我的班次",
       tab_callout: "请假",
       tab_availability: "我的替班",
-      tab_timesheet: "提交工时表",
+      tab_timesheet: "资源",
       views: "页面",
       due_today: "（今天截止）",
       lang_label: "语言：{name}。点按切换为{next}。",
@@ -982,6 +1004,11 @@ p{margin:0}
       av_form_maybe: "<b>可能有空：</b>{days}。会先问有空的替班人选，再问你。",
       av_form_change: "计划有变？再填写一次问卷就可以，以最新的回答为准。",
       av_form_open: "打开空闲时间问卷",
+      na_label: "还没有填写空闲时间问卷",
+      nofill: "你还没有填写空闲时间问卷。",
+      nofill_open: "填写问卷",
+      av_form_work: "你{days}本来就有班，所以这些日子算作没空。",
+      av_form_lower: "<b>最后才问你：</b>{days}。这是根据你在问卷里对这些日子的说明。",
       status_avail: "空闲时间回答：{n}位学生。",
       status_avail_failed: "空闲时间回答：未能载入，所以每个人都算作有空。"
     },
@@ -996,7 +1023,7 @@ p{margin:0}
       tab_shifts: "我的班次",
       tab_callout: "請假",
       tab_availability: "我的代班",
-      tab_timesheet: "提交工時表",
+      tab_timesheet: "資源",
       views: "頁面",
       due_today: "（今天截止）",
       lang_label: "語言：{name}。點按切換為{next}。",
@@ -1136,6 +1163,11 @@ p{margin:0}
       av_form_maybe: "<b>可能有空：</b>{days}。會先問有空的代班人選，再問你。",
       av_form_change: "計畫有變？再填寫一次問卷就可以，以最新的回答為準。",
       av_form_open: "開啟空閒時間問卷",
+      na_label: "還沒有填寫空閒時間問卷",
+      nofill: "你還沒有填寫空閒時間問卷。",
+      nofill_open: "填寫問卷",
+      av_form_work: "你{days}本來就有班，所以這些日子算作沒空。",
+      av_form_lower: "<b>最後才問你：</b>{days}。這是根據你在問卷裡對這些日子的說明。",
       status_avail: "空閒時間回答：{n}位學生。",
       status_avail_failed: "空閒時間回答：未能載入，所以每個人都算作有空。"
     },
@@ -1150,7 +1182,7 @@ p{margin:0}
       tab_shifts: "กะของฉัน",
       tab_callout: "แจ้งลา",
       tab_availability: "รับแทนกะ",
-      tab_timesheet: "ส่งใบลงเวลา",
+      tab_timesheet: "แหล่งข้อมูล",
       views: "หน้า",
       due_today: "(ครบกำหนดวันนี้)",
       lang_label: "ภาษา: {name} แตะเพื่อเปลี่ยนเป็น{next}",
@@ -1290,6 +1322,11 @@ p{margin:0}
       av_form_maybe: "<b>อาจจะว่าง:</b> {days} จะถามตัวสำรองที่ว่างก่อน แล้วจึงถามคุณ",
       av_form_change: "แผนเปลี่ยนไหม? กรอกแบบฟอร์มอีกครั้งได้เลย ระบบจะใช้คำตอบล่าสุดของคุณ",
       av_form_open: "เปิดแบบฟอร์มวันว่าง",
+      na_label: "ยังไม่ได้กรอกแบบฟอร์มวันว่าง",
+      nofill: "คุณยังไม่ได้กรอกแบบฟอร์มวันว่าง",
+      nofill_open: "กรอกแบบฟอร์ม",
+      av_form_work: "คุณมีกะอยู่แล้ว: {days} จึงนับว่าไม่ว่างในวันเหล่านั้น",
+      av_form_lower: "<b>จะถามคุณหลังคนอื่น:</b> {days} ตามที่คุณเขียนไว้ในแบบฟอร์มเกี่ยวกับวันเหล่านั้น",
       status_avail: "คำตอบวันว่าง: นักศึกษา {n} คน",
       status_avail_failed: "คำตอบวันว่าง: โหลดไม่ได้ จึงนับว่าทุกคนว่าง"
     },
@@ -1304,7 +1341,7 @@ p{margin:0}
       tab_shifts: "Ca của tôi",
       tab_callout: "Báo nghỉ",
       tab_availability: "Thay ca",
-      tab_timesheet: "Nộp bảng giờ",
+      tab_timesheet: "Tài nguyên",
       views: "Trang",
       due_today: "(hạn hôm nay)",
       lang_label: "Ngôn ngữ: {name}. Chạm để đổi sang {next}.",
@@ -1444,6 +1481,11 @@ p{margin:0}
       av_form_maybe: "<b>Có thể rảnh:</b> {days}. Những người dự phòng đang rảnh được hỏi trước, sau đó mới đến bạn.",
       av_form_change: "Kế hoạch thay đổi? Hãy điền lại phiếu. Câu trả lời mới nhất của bạn sẽ được dùng.",
       av_form_open: "Mở phiếu ngày rảnh",
+      na_label: "Chưa điền phiếu ngày rảnh",
+      nofill: "Bạn chưa điền phiếu ngày rảnh.",
+      nofill_open: "Điền phiếu",
+      av_form_work: "Bạn đã có ca vào {days}, nên những ngày này được tính là không rảnh.",
+      av_form_lower: "<b>Được hỏi sau những người khác:</b> {days}, theo những gì bạn đã viết về các ngày này.",
       status_avail: "Câu trả lời ngày rảnh: {n} sinh viên.",
       status_avail_failed: "Câu trả lời ngày rảnh: chưa tải được, nên mọi người được tính là rảnh."
     },
@@ -1458,7 +1500,7 @@ p{margin:0}
       tab_shifts: "ངའི་ལས་སྐོར",
       tab_callout: "དགོངས་པ་ཞུ་བ",
       tab_availability: "ངའི་ཚབ་བྱེད",
-      tab_timesheet: "ལས་ཚོད་ཐོ་སྤྲོད",
+      tab_timesheet: "མཁོ་ཆས",
       views: "ཤོག་ངོས།",
       due_today: "(དེ་རིང་སྤྲོད་དགོས།)",
       lang_label: "སྐད་ཡིག {name}། {next} ལ་བརྗེ་བར་མནོན།",
@@ -1593,6 +1635,11 @@ p{margin:0}
       av_form_maybe: "<b>ཐུབ་སྲིད།</b> {days}། ཁོམ་པ་ཡོད་པའི་ཚབ་མི་ཚོར་ཁྱེད་ལས་སྔོན་ལ་འདྲི།",
       av_form_change: "ཁྱེད་ཀྱི་འཆར་གཞི་འགྱུར་སོང་ངམ། འགེང་ཤོག་ཡང་བསྐྱར་འགེངས། ཁྱེད་ཀྱི་ལན་གསར་ཤོས་དེ་བེད་སྤྱོད་བྱེད།",
       av_form_open: "ཁོམ་ཚོད་འགེང་ཤོག་ཁ་ཕྱེ།",
+      na_label: "ཁོམ་ཚོད་འགེང་ཤོག་ད་དུང་འགེངས་མེད།",
+      nofill: "ཁྱེད་ཀྱིས་ཁོམ་ཚོད་འགེང་ཤོག་ད་དུང་འགེངས་མེད།",
+      nofill_open: "འགེང་ཤོག་འགེངས།",
+      av_form_work: "{days} ལ་ཁྱེད་ལ་ལས་སྐོར་ཡོད་ཟིན་པས། ཉིན་དེ་དག་ལ་ཁོམ་པ་མེད་པར་བརྩི།",
+      av_form_lower: "<b>གཞན་ལ་དྲིས་རྗེས་ཁྱེད་ལ་འདྲི།</b> {days}། ཁྱེད་ཀྱིས་ཉིན་དེ་དག་སྐོར་འགེང་ཤོག་ནང་བྲིས་པ་ལྟར་རེད།",
       status_avail: "ཁོམ་ཚོད་ལན། སློབ་མ་ {n}།",
       status_avail_failed: "ཁོམ་ཚོད་ལན། ཁ་ཕྱེ་མ་ཐུབ། དེར་བརྟེན་མི་ཚང་མ་ཁོམ་པ་ཡོད་པར་བརྩི།"
     }
@@ -1796,7 +1843,7 @@ p{margin:0}
      work group, then another group; each fewest shifts first, then A-Z);
      then the last resort: those free that day who can't repay you, then
      those working that day, in the order of the job's same-day backups. */
-  function buildData(shiftsText, studentsText, rolesText, answersText) {
+  function buildData(shiftsText, studentsText, rolesText, answersText, notesText) {
     var out = { shifts: [], names: [], problems: [], roleRank: Object.create(null), avail: Object.create(null), availProblems: [], answered: answersText != null };
     var P = out.problems, F = FILES.shifts;
     var roles = readRoles(rolesText, P), people = readStudents(studentsText, roles, P);
@@ -1822,6 +1869,7 @@ p{margin:0}
     });
     Object.keys(people).forEach(function (n) { if (!count[n]) P.push(n + " is in " + FILES.students + " but has no shifts."); });
     if (answersText != null) out.avail = readAvailability(answersText, out.names, out.availProblems);
+    var notes = readNotes(notesText, out.names, P);
 
     /* each student's jobs (what their shifts are covered as), groups, and
        job on each day they work */
@@ -1831,8 +1879,23 @@ p{margin:0}
       (groups[x.who] = groups[x.who] || Object.create(null))[x.r.cover.group] = true;
       (onDay[x.who] = onDay[x.who] || Object.create(null))[x.day] = lower(x.r.cover.name);
     });
+    /* what counts for each student and day (Rule 7): their row in the
+       notes file if there is one; else, for a student who answered the
+       form, Not available on a day they already work; else their answer.
+       "", "maybe", "lower" or "no". byWork: the days the second made
+       Not available, against what they answered. */
+    out.said = Object.create(null);
+    out.byWork = Object.create(null);
+    out.names.forEach(function (n) {
+      var a = out.avail[n], mine = out.said[n] = [], work = out.byWork[n] = [];
+      for (var d = 0; d < 7; d++) {
+        mine[d] = a && a[d] || "";
+        if (notes[n] && notes[n][d] != null) mine[d] = notes[n][d];
+        else if (a && onDay[n] && d in onDay[n] && mine[d] !== "no") { mine[d] = "no"; work.push(d); }
+      }
+    });
     /* Can n cover shift x? (Rules 2, 3, 4 and 7) */
-    var said = function (n, d) { return out.avail[n] ? out.avail[n][d] : ""; };
+    var said = function (n, d) { return out.said[n] ? out.said[n][d] : ""; };
     var eligible = function (n, x) {
       var job = x.r.cover, owner = people[x.who], today = onDay[n] && onDay[n][x.day];
       if (n === x.who || !canCover(people[n], job) || said(n, x.day) === "no") return false;
@@ -1854,14 +1917,15 @@ p{margin:0}
       var free = can.filter(function (n) { return !onDay[n][s.day]; });
       var swaps = {};
       can.forEach(function (n) { swaps[n] = repay(s, n); });
-      var main = free.filter(function (n) { return swaps[n].length && said(n, s.day) !== "maybe"; }).sort(byTier);
+      var main = free.filter(function (n) { return swaps[n].length && !said(n, s.day); }).sort(byTier);
       var maybe = free.filter(function (n) { return swaps[n].length && said(n, s.day) === "maybe"; }).sort(byTier);
+      var low = free.filter(function (n) { return swaps[n].length && said(n, s.day) === "lower"; }).sort(byTier);
       var oneWay = free.filter(function (n) { return !swaps[n].length; }).sort(byTier);
       var sameDay = can.filter(function (n) { return onDay[n][s.day]; }).sort(function (a, b) {
         return as.same.indexOf(onDay[a][s.day]) - as.same.indexOf(onDay[b][s.day]) || byFew(a, b);
       });
-      s.cover = main.concat(maybe, oneWay, sameDay);
-      s.lastFrom = main.length + maybe.length;
+      s.cover = main.concat(maybe, low, oneWay, sameDay);
+      s.lastFrom = main.length + maybe.length + low.length;
       s.swap = {};
       s.cover.forEach(function (n) { s.swap[n] = swaps[n]; });
     });
@@ -1884,11 +1948,13 @@ p{margin:0}
       problems.push("The link gives a web page, not a CSV file. In the sheet, choose File, Share, Publish to web, then Comma-separated values (.csv), and use that link.");
       return out;
     }
-    var nameCol = -1, days = [];
+    /* a day column is the form's "… [Monday]", or a heading that is just
+       the day. The form's own notes ("Monday availability") aren't. */
+    var nameCol = -1, days = [], bracketed = rows[0].some(function (h) { return dayIndex((/\[([^\]]+)\]\s*$/.exec(h) || [])[1]) >= 0; });
     rows[0].forEach(function (h, i) {
-      var inBrackets = /\[([^\]]+)\]\s*$/.exec(h), d = dayIndex(inBrackets ? inBrackets[1] : h);
+      var inBrackets = /\[([^\]]+)\]\s*$/.exec(h), d = inBrackets ? dayIndex(inBrackets[1]) : bracketed || !/^\s*[a-z]+\.?\s*$/i.test(h) ? -1 : dayIndex(h);
       if (d >= 0) days.push({ col: i, day: d });
-      else if (nameCol < 0 && /name|student/.test(lower(h))) nameCol = i;
+      else if (nameCol < 0 && !inBrackets && /name|student/.test(lower(h))) nameCol = i;
     });
     if (nameCol < 0) { problems.push("There's no Name column."); return out; }
     if (!days.length) { problems.push("There are no day columns (Monday, Tuesday …)."); return out; }
@@ -1903,11 +1969,36 @@ p{margin:0}
       }
       var mine = out[who] = [];
       days.forEach(function (x) {
-        var v = lower(r[x.col]);
+        /* the form's answers may start with a symbol ("✅ Available") */
+        var v = lower(r[x.col]).replace(/^[^a-z]+/, "");
         mine[x.day] = /maybe|not sure|unsure/.test(v) ? "maybe" : /^(not|no\b|n$|unavailable)/.test(v) ? "no" : "";
         if (v && !mine[x.day] && !/^(available|yes|y$)/.test(v))
           problems.push(line + "\"" + cell(r, x.col) + "\" for " + who + " on " + DAYS[x.day] + " isn't Available, Maybe or Not available, so it counts as available.");
       });
+    });
+    return out;
+  }
+
+  /* availability-notes.csv (Rule 7): a student's day set by hand, from
+     what they wrote on the form. Override, when filled in, beats
+     Suggested. Gives each student's days that have a row: "" (Available),
+     "maybe", "lower" (asked after the Maybes) or "no". */
+  function readNotes(text, names, problems) {
+    var VALUES = { "available": "", "maybe": "maybe", "lower": "lower", "not available": "no" };
+    var out = Object.create(null), known = Object.create(null), F = FILES.notes;
+    if (!(text || "").trim()) return out;
+    names.forEach(function (n) { known[lower(n)] = n; });
+    var rows = parseCSV(text), col = header(rows, F, { who: /^(student|name)/, day: /^day/, sug: /^suggest/, over: /^override/ }, problems);
+    if (!col) return out;
+    rows.slice(1).forEach(function (r, n) {
+      var line = F + " line " + (n + 2) + ": ", typed = cell(r, col.who), who = known[lower(typed)], d = dayIndex(r[col.day]);
+      var v = cell(r, col.over) || cell(r, col.sug);
+      if (!typed) { if (r.join("").trim()) problems.push(line + "no student."); return; }
+      if (!who) { problems.push(line + "\"" + typed + "\" isn't a name on the shift list."); return; }
+      if (d < 0) { problems.push(line + "\"" + cell(r, col.day) + "\" isn't a day."); return; }
+      if (!v) return;
+      if (!Object.prototype.hasOwnProperty.call(VALUES, lower(v))) { problems.push(line + "\"" + v + "\" isn't Available, Maybe, Lower or Not available."); return; }
+      (out[who] = out[who] || [])[d] = VALUES[lower(v)];
     });
     return out;
   }
@@ -1921,7 +2012,7 @@ p{margin:0}
   function renderPicker() {
     var opts = '<option value="">' + t("choose_name") + "</option>";
     if (data) opts += data.names.map(function (n) {
-      return '<option value="' + esc(n) + '"' + (n === me ? " selected" : "") + ">" + esc(n) + "</option>";
+      return '<option value="' + esc(n) + '"' + (n === me ? " selected" : "") + ">" + esc(n) + (noForm(n) ? " (!)" : "") + "</option>";
     }).join("");
     Array.prototype.forEach.call(document.querySelectorAll("[data-me]"), function (sel) {
       sel.innerHTML = opts;
@@ -1930,13 +2021,25 @@ p{margin:0}
     });
     drawWho();
   }
-  /* the name as a pill once it's chosen */
+  /* the name as a pill once it's chosen; and, if they haven't filled in
+     the availability form, a notice at the top of every tab */
   function drawWho() {
     Array.prototype.forEach.call(document.querySelectorAll("[data-who]"), function (w) {
       var mini = /\bmini\b/.test(w.className);
       w.className = "who" + (mini ? " mini set" + (me && data ? " has" : "") : me && data ? " set" : "");
-      w.querySelector(".me-pill").innerHTML = "<span>" + esc(me || (mini ? t("choose_name") : "")) + "</span>";
+      w.querySelector(".me-pill").innerHTML = "<span>" + esc(me || (mini ? t("choose_name") : "")) + "</span>" + naMark(me);
     });
+    var show = noForm(me), html = show ? "<span>" + t("nofill") + "</span>" +
+      (CONFIG.form ? '<a href="' + esc(CONFIG.form) + '" target="_blank" rel="noopener">' + t("nofill_open") + ' <span aria-hidden="true">&#8599;</span></a>' : "") : "";
+    Array.prototype.forEach.call(document.querySelectorAll("[data-nofill]"), function (el) {
+      el.hidden = !show;
+      el.innerHTML = html;
+    });
+  }
+  /* Once the form's answers are in, a name with no answer carries a mark */
+  function noForm(n) { return !!(n && data && data.answered && data.names.indexOf(n) >= 0 && !data.avail[n]); }
+  function naMark(n) {
+    return noForm(n) ? '<span class="na screen-only" role="img" aria-label="' + esc(t("na_label")) + '" title="' + esc(t("na_label")) + '"></span>' : "";
   }
 
   /* dates: the next date (today included) a shift on weekday d falls on */
@@ -1996,7 +2099,7 @@ p{margin:0}
           '<div class="shift-h"><h2>' + dayName(s.day) + whenPill(s.day, today) + "</h2>" +
           '<span class="role">' + esc(s.as) + "</span></div>" +
           (crew.length ? '<div class="part"><h4>' + t("on_with_you") + '</h4><ul class="crew">' + crew.map(function (x) {
-            return "<li><span>" + esc(x.who) + '</span><span class="r">' + esc(x.role) + "</span></li>";
+            return "<li><span>" + esc(x.who) + naMark(x.who) + '</span><span class="r">' + esc(x.role) + "</span></li>";
           }).join("") + "</ul></div>" : "") +
           '<details class="backups"' + (printing ? " open" : "") + "><summary><span>" + t("shift_backups", { n: s.cover.length }) + "</span></summary>" +
           (s.cover.length ? '<p class="cover-lead">' + t("can_cover") + "</p>" +
@@ -2017,8 +2120,8 @@ p{margin:0}
     if (!names.length) return "";
     return '<ol class="cover"' + (start > 1 ? ' start="' + start + '"' : "") + ">" + names.map(function (c) {
       var shifts = swap[c] && swap[c].length ? swap[c] : shiftsOf(c);
-      var maybe = data.avail[c] && data.avail[c][day] === "maybe" ? ' <span class="mb">' + t("maybe_tag") + "</span>" : "";
-      return '<li><span class="cn">' + esc(c) + maybe + '</span><span class="cw">' + shiftsHTML(shifts, job) + "</span></li>";
+      var maybe = data.said[c] && data.said[c][day] === "maybe" ? ' <span class="mb">' + t("maybe_tag") + "</span>" : "";
+      return '<li><span class="cn">' + esc(c) + naMark(c) + maybe + '</span><span class="cw">' + shiftsHTML(shifts, job) + "</span></li>";
     }).join("") + "</ol>";
   }
   function shiftsOf(name) {
@@ -2060,7 +2163,11 @@ p{margin:0}
         (job.swaps[x.day] = job.swaps[x.day] || { back: x.day, mine: x.as, who: [] }).who.push(s.who);
       });
     });
-    var who = function (list) { return list.slice().sort(function (a, b) { return a.localeCompare(b); }).map(esc).join(t("list_sep")); };
+    var who = function (list) { return list.slice().sort(function (a, b) { return a.localeCompare(b); }).map(function (n, i, all) {
+      /* each name keeps its mark and its comma */
+      var sep = i < all.length - 1 ? t("list_sep") : "";
+      return '<span class="nw">' + esc(n) + naMark(n) + sep.replace(/\s+$/, "") + "</span>" + sep.slice(sep.replace(/\s+$/, "").length);
+    }).join(""); };
     var groups = [];
     days.forEach(function (day, d) {
       if (!day) return;
@@ -2106,16 +2213,21 @@ p{margin:0}
   /* what you answered on the availability form, and the form to change it */
   function myAnswers() {
     if (!data.answered && !CONFIG.form) return "";
-    var a = data.avail[me], lines = [];
+    /* what counts, which may differ from what they answered: a day they
+       already work is Not available, and the notes file has the last word */
+    var a = data.avail[me], said = data.said[me], lines = [];
+    var names = function (list) { return list.map(dayName).join(t("list_sep")); };
     var days = function (v) {
       var out = [];
-      for (var d = 0; d < 7; d++) if (a[d] === v) out.push(dayName(d));
-      return out.join(t("list_sep"));
+      for (var d = 0; d < 7; d++) if (said[d] === v) out.push(d);
+      return names(out);
     };
     if (data.answered && !a) lines.push(t("av_form_none"));
     else if (a) {
       if (days("no")) lines.push(t("av_form_no", { days: days("no") }));
+      if (data.byWork[me].length) lines.push(t("av_form_work", { days: names(data.byWork[me]) }));
       if (days("maybe")) lines.push(t("av_form_maybe", { days: days("maybe") }));
+      if (days("lower")) lines.push(t("av_form_lower", { days: days("lower") }));
       if (!lines.length) lines.push(t("av_form_all"));
     }
     if (CONFIG.form && a) lines.push(t("av_form_change"));
@@ -2844,7 +2956,7 @@ p{margin:0}
   }
   function rebuild() {
     if (!files) return;
-    data = buildData(files[0], files[1], files[2], answers);
+    data = buildData(files[0], files[1], files[2], answers, files[3]);
     if (data.problems.length && window.console) console.warn("Shift files: " + data.problems.join(" "));
     if (me && data.names.indexOf(me) < 0) { me = ""; store.del(ME_KEY); }
     renderAll();
@@ -2856,7 +2968,8 @@ p{margin:0}
       return r.text();
     });
   }
-  Promise.all([get(FILES.shifts), get(FILES.students), get(FILES.roles)]).then(function (t) {
+  /* the notes file is optional: without it, nothing is set by hand */
+  Promise.all([get(FILES.shifts), get(FILES.students), get(FILES.roles), get(FILES.notes).catch(function () { return ""; })]).then(function (t) {
     files = t;
     rebuild();
   }).catch(function (err) {

@@ -29,9 +29,10 @@ dependencies. Served over the web, it installs as an app on a phone.
 | Tab | What it shows |
 | --- | --- |
 | **My shifts** | Choose your name from the list. The phone remembers it, and shows it as a small pill beside the heading. Under the heading, **the week at a glance**: today's date, then each of your shifts in week order (Monday first), with the next date it falls on and a **Today** or **Tomorrow** pill. Then, for each of your shifts: the day (with the same pill) and your job, and who else from your work group is on that day, with their roles, in `roles.csv` order (left out when no one else in your group is on). Under that, **Shift Backups** opens to show who can cover for you, numbered in the order to ask. Anyone who answered **Maybe** on the availability form for that day has a small **Maybe** tag beside their name. |
+| **Every tab** | Once the form's answers load, a small amber **!** sits beside the name of every student who hasn't filled in the availability form, wherever a name appears (the name list shows "(!)"). If the chosen student hasn't, a note at the top of every tab says so, with the form's link. |
 | **My availability** | The days the chosen student is a backup on, one card per day, topped in the day's colour like the shift cards. Each card holds a small table: **You may be asked to work** (the job), **In exchange, they would work your** (day and job), and **Who may ask**. Under the cards, the student's own answers on the availability form, with a button to the form (when the form is set up). Then a line to email the Student Kitchen Manager if anything is wrong. |
 | **Call out** | What to do when you can't make a shift, in plain words. At the top, **What's happening?** has a button for each situation that jumps to it: "I can't make it today", "Not sure if I can make it today", "I'm too sick to get out of bed", "I forgot my shift, and it has already started" (Sick or Unplanned Absence), "I will miss a shift in the future" (Planned Absence), and "Oh no! I missed my shift" (Missed Shift: message the Student Kitchen Manager and the Shift Leader, then wait for a make-up shift, and don't come in for another shift without approval). Each is written to be read on its own. Then **Afterward**, "It's not covered until someone says yes", and the contacts. Under each step that needs one is the message to send, in English, with a **Copy message** button. Your name and the Student Kitchen Manager's name are filled in, and your role too if you only ever do one job. Under each "message your backups" step is a link to the contact list (when it's set up). |
-| **Submit Timesheet** | The deadline, Sunday at 5 pm, a button to the timesheet portal at drbu.edu/timesheet, and "It's not done until your hours are submitted". On Sundays the tab shows a "1" bubble until the portal button is pressed that day (kept in `localStorage` as `kitchen.timesheet`). Under it, a panel with a button to the contact list (when it's set up). |
+| **Resources** | The deadline, Sunday at 5 pm, a button to the timesheet portal at drbu.edu/timesheet, and "It's not done until your hours are submitted". On Sundays the tab shows a "1" bubble until the portal button is pressed that day (kept in `localStorage` as `kitchen.timesheet`). Under it, a panel with a button to the contact list (when it's set up). |
 
 There are no phone numbers and no call buttons in the app. Phone numbers
 live only in the private contact list, a Google Sheet that only the crew
@@ -42,7 +43,7 @@ The chosen name is kept in this browser only (`localStorage`, key
 
 ## The shift files
 
-The app reads three files and works out every cover list itself. Nobody
+The app reads three files (and the optional notes file) and works out every cover list itself. Nobody
 types the lists.
 
 | File | One row per | Columns |
@@ -50,6 +51,7 @@ types the lists.
 | `shifts.csv` | shift | Student, Shift day, Role |
 | `students.csv` | student | Student, Gender (F/M, never shown), Trained for (`;`-separated), and for special students: Only does (the roles they can work), Only covers (the roles they can substitute for, or `None`), Covered only by same job (`Yes`). Blank = no limit. The last three columns are optional. |
 | `roles.csv` | role, in card order | Role, Work group, Covered as (optional: Shift Leader → Pots & Pans), Gender (Any / Women only / Men only), Trained students only (Yes/No), Same-day backups (asked last, `;`-separated, in order) |
+| `availability-notes.csv` (optional) | student and day set by hand | Student, Day, Suggested, Override (wins when filled in), Why (never shown). The value is Available, Maybe, Lower or Not available. Written by a person from the form's short answers (HOW-TO-UPDATE.md, 6g). |
 
 **A cover list** follows the numbered rules in HANDOFF.md, "How the cover
 lists are worked out": the groups (A Lunch Monitors, B Dishwashing, C
@@ -65,7 +67,10 @@ and the tests follow it. In short:
 - **the availability form (Rule 7):** someone who answered **Not
   available** for a day is never a backup that day, and is never offered
   as a swap on that day. Someone who answered **Maybe** moves to just
-  above the last resort. No answer counts as available.
+  above the last resort. No answer counts as available. Once a student
+  has answered, a day they already work counts as Not available. A row in
+  `availability-notes.csv` beats both; **Lower** puts them after the
+  Maybes.
 
 A Shift Leader shift counts as Pots & Pans everywhere except **On with
 you**, which shows only the shift's own work group. Backup lines show the
@@ -77,7 +82,10 @@ The footer checks all three files and names anything that looks wrong:
 - a bad gender or yes/no value, or a role or student listed twice;
 - a student twice on one day (the second row is ignored);
 - a student with fewer than 2 or more than 4 shifts, or in
-  `students.csv` with no shifts.
+  `students.csv` with no shifts;
+- in `availability-notes.csv`, a name not on the shift list, a day that
+  isn't one, or a value that isn't Available, Maybe, Lower or Not
+  available.
 
 It also says how many students have answered the availability form, and
 flags a name there that isn't on the shift list, an answer that isn't
@@ -120,6 +128,7 @@ emails or phone numbers.
 | --- | --- |
 | `index.html` | The whole app. |
 | `shifts.csv`, `students.csv`, `roles.csv` | The shift files: who works when, who the students are, and the role rules. The app works out the cover lists from them. |
+| `availability-notes.csv` | Days set by hand from what students wrote on the availability form. Optional. |
 | `settings.csv` | The two managers' names, the timesheet portal link, and the optional links to the availability form, its answers and the contact list. Read when the app opens. |
 | `HOW-TO-UPDATE.md` | For whoever is taking the app over or looking after it, written for someone who has never used GitHub. |
 | `HANDOFF.md` | For whoever is handing it over: the steps, the handover log, how the cover lists are worked out, and the one-time move into a shared organization. |
@@ -164,7 +173,7 @@ NODE_PATH=$(npm root -g) node tests/app.e2e.js   # every screen in Chromium (nee
 `data.test.js` lifts each data function out of `index.html` by name, so
 it always tests the code that ships. It checks every cover list and swap
 option against `tests/expected-cover-lists.csv`, which
-`tests/expected_cover_lists.py` writes from the same three files with a
+`tests/expected_cover_lists.py` writes from the same three files and `availability-notes.csv` with a
 separate Python copy of the rules (run `python3
 tests/expected_cover_lists.py` after changing a shift file or a rule). The
 script also writes `tests/expected-cover-lists-availability.csv` from the

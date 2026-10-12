@@ -88,8 +88,12 @@ function serve(dir, port) {
     p.on("pageerror", function (e) { errors.push(e.message); });
     if (opts.time) await p.clock.setFixedTime(new Date(opts.time));
     if (opts.data) await p.route("**/shifts.csv", function (r) { return opts.data === 404 ? r.fulfill({ status: 404, body: "" }) : r.fulfill({ body: opts.data }); });
+    if (opts.notes != null) await p.route("**/availability-notes.csv", function (r) { return r.fulfill({ body: opts.notes }); });
     if (opts.students) await p.route("**/students.csv", function (r) { return r.fulfill({ body: opts.students }); });
-    if (opts.settings) await p.route("**/settings.csv", function (r) { return opts.settings === 404 ? r.fulfill({ status: 404, body: "" }) : r.fulfill({ body: opts.settings }); });
+    /* by default the real settings, but without the availability form, so
+       the lists don't depend on the live answers */
+    var settings = opts.settings || fs.readFileSync(path.join(ROOT, "settings.csv"), "utf8").split("\n").filter(function (l) { return !/^availability/i.test(l); }).join("\n");
+    await p.route("**/settings.csv", function (r) { return settings === 404 ? r.fulfill({ status: 404, body: "" }) : r.fulfill({ body: settings }); });
     await ctx.route("https://www.drbu.edu/**", function (r) { return r.fulfill({ body: "portal" }); });
     return p;
   }
@@ -305,10 +309,10 @@ function serve(dir, port) {
     "Aryashree, you're a backup on these days. Someone on that shift may ask you to cover, in exchange for a shift of yours. You don't have to say yes, but if someone asks, please reply with a yes or a no.");
   await p.click("#bottom-nav a[href='#availability']");
   await p.waitForFunction(function () { return !document.getElementById("view-availability").hidden; });
-  check("availability tab: its own view, between Call out and Submit Timesheet",
+  check("availability tab: its own view, between Call out and Resources",
     [await p.$$eval("#bottom-nav a", function (a) { return a.map(function (x) { return x.textContent; }); }), await p.title(),
      await p.$$eval("main.view", function (v) { return v.filter(function (x) { return !x.hidden; }).map(function (x) { return x.id; }); })],
-    [["My shifts", "My availability", "Call out", "Submit Timesheet"], "My availability · Kitchen Cleanup", ["view-availability"]]);
+    [["My shifts", "My availability", "Call out", "Resources"], "My availability · Kitchen Cleanup", ["view-availability"]]);
   check("availability tab: each day a card in its hue", await p.$$eval(".avail-list li", function (l) {
     return l.every(function (x) { return x.classList.contains("panel") && /\bk[0-6]\b/.test(x.className) && x.querySelector("h2.d"); });
   }), true);
@@ -628,18 +632,43 @@ function serve(dir, port) {
     [false, "https://docs.google.com/spreadsheets/d/CONTACTS/edit", "CONTACT LIST"]);
   await p.goto(BASE + "#availability"); await ready(p); await p.waitForTimeout(150);
   check("answers: Adam's own answers and the form", [await text(p, ".answers"), await p.getAttribute(".answers .out-link", "href")],
-    ["YOUR AVAILABILITY FORM Not available: Wednesday. No one will ask you to cover then. Have your plans changed? Fill in the form again. Your newest answers count. Open the availability form \u2197", "https://forms.gle/TEST"]);
+    ["YOUR AVAILABILITY FORM Not available: Monday, Tuesday, Wednesday, Thursday. No one will ask you to cover then. You already work on Monday, Tuesday, Thursday, so you count as not available then. Have your plans changed? Fill in the form again. Your newest answers count. Open the availability form \u2197", "https://forms.gle/TEST"]);
   check("answers: no Wednesday rows for someone not available on Wednesday", await p.$$eval("#avail-body tr[data-trade]", function (r) {
     return r.filter(function (x) { return /^Wednesday\|/.test(x.dataset.trade); }).length;
   }), 0);
   await p.evaluate(function () { localStorage.setItem("kitchen.lang", "zh-Hans"); }); await p.reload(); await ready(p);
   await p.waitForFunction(function () { return document.querySelector(".answers p"); });
-  check("answers: in Chinese, the days in Chinese", await text(p, ".answers p"), "没空：星期三。这些日子不会有人请你替班。");
+  check("answers: in Chinese, the days in Chinese", await text(p, ".answers p"), "没空：星期一、星期二、星期三、星期四。这些日子不会有人请你替班。");
   await p.context().close();
   p = await answersPage("Nita", SAMPLE);
   await p.goto(BASE + "#availability"); await ready(p);
   await p.waitForFunction(function () { return /Availability answers/.test(document.getElementById("data-status").textContent); });
   check("answers: someone who hasn't answered", await text(p, ".answers p"), "You haven't filled in the availability form yet, so you may be asked on any of these days.");
+  /* the ! for everyone who hasn't answered (the sample has six who have) */
+  var ANSWERED = ["Adam", "Beth", "Huiyi", "Lavanya", "Priya", "Shuxing"];
+  check("not answered: a notice with the form's link at the top of all four tabs", await p.$$eval("[data-nofill]", function (n) {
+    return n.map(function (x) { return [x.closest("main").id, x.hidden, x.textContent.replace(/\s+/g, " ").trim(), x.querySelector("a").href, !!x.querySelector(".na")]; });
+  }), ["view-shifts", "view-availability", "view-callout", "view-timesheet"].map(function (v) {
+    return [v, false, "You haven't filled in the availability form yet.Fill in the form \u2197", "https://forms.gle/TEST", false];
+  }));
+  check("not answered: the mark in the pills and the name list", [await p.$$eval("[data-who] .me-pill .na", function (n) { return n.length; }),
+    await p.$eval("#me option[value=Nita]", function (o) { return o.textContent; }), await p.$eval("#me option[value=Adam]", function (o) { return o.textContent; })],
+    [4, "Nita (!)", "Adam"]);
+  var marked = function (sel) {
+    return p.$$eval(sel, function (c) {
+      return c.map(function (x) { return x.innerHTML; }).join(", ").replace(/<span class="na[^>]*><\/span>/g, "!").replace(/<[^>]+>/g, "").split(/,\s*/).map(function (n) { return n.trim(); }).filter(Boolean);
+    });
+  };
+  var expectMarks = function (list) { return list.map(function (n) { return n.replace(/!$/, "") + (ANSWERED.indexOf(n.replace(/!$/, "")) < 0 ? "!" : ""); }); };
+  var who = await marked("#avail-body .avn");
+  check("not answered: the mark beside each name in Who may ask that hasn't answered", [who.length > 3, who], [true, expectMarks(who)]);
+  await p.click("#bottom-nav a[href='#shifts']"); await p.waitForFunction(function () { return !document.getElementById("view-shifts").hidden; });
+  var crew = await marked(".crew li > span:first-child"), covers = await marked(".cover .cn");
+  check("not answered: the mark in On with you and the backup lists", [crew.length > 0, crew, covers.length > 5, covers.map(function (c) { return c.replace(/\s*Maybe$/, ""); })],
+    [true, expectMarks(crew), true, expectMarks(covers.map(function (c) { return c.replace(/\s*Maybe$/, ""); }))]);
+  check("not answered: the mark's words for screen readers, and its ! from CSS", await p.$eval(".cover .na", function (na) {
+    return [na.getAttribute("aria-label"), getComputedStyle(na, "::before").content, na.textContent];
+  }), ["Hasn't filled in the availability form", '"!"', ""]);
   await p.context().close();
   p = await answersPage("Adam", 404);
   await p.goto(BASE); await ready(p);
@@ -663,7 +692,7 @@ function serve(dir, port) {
   await p.context().close();
   var badShifts = "Student,Shift day,Role\nAnn,Monday,Lunch Monitor\nAnn,Tuesday,Pots & Pans\nDan,Wednesday,Pots & Pans\nDan,Thursday,Pots & Pans\n";
   var badStudents = "Student,Gender,Only does,Trained for\nAnn,F,,Lunch Monitor\nDan,M,,\n";
-  p = await page({ data: badShifts, students: badStudents });
+  p = await page({ data: badShifts, students: badStudents, notes: "" });
   await p.goto(BASE); await ready(p); await p.selectOption("#me", "Ann");
   check("empty cover list message", await p.$eval(".shift:first-of-type .cover-lead", function (e) { return e.textContent; }), "No one is listed to cover this shift yet.");
   check("data problems: footer clean when valid", /Check the shift files/.test(await text(p, "#data-status")), false);
@@ -753,7 +782,9 @@ function serve(dir, port) {
 
   /* ------------------------------------ offline, and self-updating */
   var tmp = fs.mkdtempSync(path.join(os.tmpdir(), "kitchen-"));
-  ["index.html", "sw.js", "settings.csv", "shifts.csv", "students.csv", "roles.csv", "manifest.webmanifest"].forEach(function (f) { fs.copyFileSync(path.join(ROOT, f), path.join(tmp, f)); });
+  ["index.html", "sw.js", "settings.csv", "shifts.csv", "students.csv", "roles.csv", "availability-notes.csv", "manifest.webmanifest"].forEach(function (f) { fs.copyFileSync(path.join(ROOT, f), path.join(tmp, f)); });
+  /* without the live availability answers */
+  fs.writeFileSync(path.join(tmp, "settings.csv"), fs.readFileSync(path.join(ROOT, "settings.csv"), "utf8").split("\n").filter(function (l) { return !/^availability/i.test(l); }).join("\n"));
   ["fonts", "icons"].forEach(function (d) { fs.cpSync(path.join(ROOT, d), path.join(tmp, d), { recursive: true }); });
   var server2 = await serve(tmp, PORT + 1), BASE2 = "http://localhost:" + (PORT + 1) + "/";
   var ctx = await browser.newContext({ viewport: { width: 375, height: 780 } });

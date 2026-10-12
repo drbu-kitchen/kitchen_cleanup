@@ -19,7 +19,11 @@ The rules are in HANDOFF.md, "How the cover lists are worked out":
   day is never a backup that day, and is never offered a swap on that day.
   Someone who answered "Maybe" for a day moves to just above the last resort
   (in the same order among themselves). A later answer replaces an earlier
-  one; a blank counts as available.
+  one; a blank counts as available. Someone who answered counts as "Not
+  available" on a day they already work, whatever they answered. A row in
+  availability-notes.csv (Override, else Suggested) beats both: Available,
+  Maybe, Lower (after the Maybes, still above the last resort) or Not
+  available. The notes apply to both lists below.
 The "Before last resort" column counts the backups ahead of it, and "Swap
 options" gives each backup's shifts the student could take in return
 ("Beth: Wednesday Pots & Pans, Thursday Pots & Pans; Irina: none").
@@ -103,7 +107,7 @@ def same_day_ok(job, other):
 
 
 def answer(v):
-    v = (v or "").strip().lower()
+    v = re.sub(r"^[^a-z]+", "", (v or "").strip().lower())  # "✅ Available"
     if any(w in v for w in ("maybe", "not sure", "unsure")):
         return "maybe"
     if re.match(r"(not|no\b|n$|unavailable)", v):
@@ -123,6 +127,29 @@ def read_answers(name):
         who = by_lower.get(r[who_col].strip().lower())
         if who:
             out[who] = {d: answer(r[i]) for i, d in day_cols if answer(r[i])}
+    return out
+
+
+NOTE = {"available": "", "maybe": "maybe", "lower": "lower", "not available": "no"}
+notes = {}
+for r in rows("availability-notes.csv"):
+    v = (r["Override"] or "").strip() or (r["Suggested"] or "").strip()
+    if v:
+        notes.setdefault(r["Student"].strip(), {})[DAYS.index(r["Day"].strip())] = NOTE[v.lower()]
+
+
+def counted(answers):
+    """what counts: the notes, else Not available on a day an answering
+    student works, else the answer"""
+    out = {}
+    for n in names:
+        for d in range(7):
+            v = answers.get(n, {}).get(d, "")
+            if n in answers and (n, d) in job_on:
+                v = "no"
+            v = notes.get(n, {}).get(d, v)
+            if v:
+                out.setdefault(n, {})[d] = v
     return out
 
 
@@ -151,23 +178,25 @@ def write(file):
             tier = 0 if job in jobs[n] else 1 if roles[job]["group"] in groups[n] else 2
             return (tier, count[n], n.lower())
 
-        def maybe(n):
-            return said.get(n, {}).get(day) == "maybe"
+        def is_(n, v):
+            return said.get(n, {}).get(day, "") == v
 
         free = [n for n in can if (n, day) not in job_on]
-        main = sorted([n for n in free if swaps[n] and not maybe(n)], key=tiered)
-        unsure = sorted([n for n in free if swaps[n] and maybe(n)], key=tiered)
+        main = sorted([n for n in free if swaps[n] and is_(n, "")], key=tiered)
+        unsure = sorted([n for n in free if swaps[n] and is_(n, "maybe")], key=tiered)
+        lower = sorted([n for n in free if swaps[n] and is_(n, "lower")], key=tiered)
         one_way = sorted([n for n in free if not swaps[n]], key=tiered)
         same = [covered_as(x) for x in roles[job]["same"]]
         same_day = sorted([n for n in can if (n, day) in job_on], key=lambda n: (same.index(job_on[(n, day)]), count[n], n.lower()))
-        cover = main + unsure + one_way + same_day
+        cover = main + unsure + lower + one_way + same_day
         options = "; ".join(n + ": " + (", ".join(DAYS[d] + " " + roles[j]["name"] for d, j in sorted(swaps[n])) or "none") for n in cover)
-        w.writerow([who, DAYS[day], roles[role]["name"], ", ".join(cover), len(main) + len(unsure), options])
+        w.writerow([who, DAYS[day], roles[role]["name"], ", ".join(cover), len(main) + len(unsure) + len(lower), options])
     with open(os.path.join(ROOT, "tests", file), "w") as f:
         f.write(out.getvalue())
 
 
+said = counted({})
 write("expected-cover-lists.csv")
-said = read_answers("tests/sample-availability-answers.csv")
+said = counted(read_answers("tests/sample-availability-answers.csv"))
 write("expected-cover-lists-availability.csv")
 print("wrote", len(shifts), "cover lists, twice")

@@ -44,7 +44,20 @@ and the tab shell from the second.
   chose "just above the last resort"). No answer, or answers that can't
   be read, count as available; a later row for a name wins. The Python
   copy writes a second reference from `tests/sample-availability-answers.csv`
-  (made up, shaped like the form's published sheet). The hours are
+  (made up, shaped like the form's published sheet: symbols before the
+  answers, "Monday availability" notes columns that are not day columns,
+  a stray "[Row 6]"). Two more parts of Rule 7, settled with the user:
+  once a student has answered, a day they already work is "no"
+  (`out.byWork`; students were told to answer so, and some didn't), and
+  `availability-notes.csv` (`readNotes()`; Student, Day, Suggested,
+  Override, Why) beats both, Override over Suggested: Available, Maybe,
+  Lower or Not available. Lower ("lower") goes after the Maybes, still
+  above the last resort, with no tag. It exists because the form's
+  per-day short answers are free text: Claude read them and wrote the
+  Suggested values; people override. No AI in the app. `out.said[name][day]`
+  is what counts; `out.avail` stays the raw answers. The notes file is
+  optional (missing means none) and its problems join the shift files'
+  in the footer. Both Python references use the real notes file. The hours are
   for understanding only: never show them in the app. Rules belong in
   the CSVs, never hard-coded.
 - "Can cover for you" shows each backup as a bold name, then their swap
@@ -98,8 +111,8 @@ and the tab shell from the second.
   cover for you" as body text above the list; on Call out, a Copy
   message button under each message; the contact list link
   (`contactLine()`) under each "message your backups" step and in a panel
-  on Submit Timesheet (`#clist`); and the availability form button on My
-  availability (`myAnswers()`). Phone numbers live only in the private
+  on Resources (`#clist`); the availability form button on My
+  availability (`myAnswers()`); and the not-answered notice's form link. Phone numbers live only in the private
   contact list (a Google Sheet), never in the app.
 - **Call out** (`renderCallout()`) is the user's own procedure. Its
   readers are mostly young women whose first language is Chinese,
@@ -192,7 +205,18 @@ and the tab shell from the second.
   formats, the settings, the rules, the tabs, the languages, or what the
   footer checks. Anything that would need a successor to edit
   `index.html` belongs in `settings.csv` instead.
-- The last tab, Submit Timesheet, gives the deadline (Sunday, 5 pm), a
+- **Who hasn't answered the form.** Once the answers load
+  (`data.answered`), everyone with no row gets a small amber **!**
+  (`.na`, a gold circle whose "!" is CSS, so names copy cleanly; `noForm()`,
+  `naMark()`) beside their name everywhere: the backup lists, On with
+  you, Who may ask, the name pills, and "(!)" in the name list. The user
+  wants the crew to see it, as pressure to answer. There is no legend: a
+  student who hasn't answered sees `.nofill` (`[data-nofill]`, at the top
+  of all four tabs), in the user's words, only "You haven't filled in the
+  availability form yet." and the form's link, "Fill in the form", under
+  it. Both are `screen-only`.
+- The last tab is **Resources** (the user wanted one word; its hash stays
+  `#timesheet`, and `tab_timesheet` is the key). It gives the deadline (Sunday, 5 pm), a
   button to https://www.drbu.edu/timesheet, and a motto echoing Call
   out's: "It's not done until your hours are *submitted.*" On a Sunday its tab carries a "1"
   bubble until that button is pressed that day (`kitchen.timesheet` holds
@@ -201,7 +225,7 @@ and the tab shell from the second.
   `activate`'s `waitUntil`. A reload is a fetch the worker can't answer
   until activation finishes, so waiting on it inside deadlocks the app.
 - It is an installable PWA. A file added to the app must also go in `SHELL`
-  in `sw.js`. The page and the four CSVs are served network-first, and so
+  in `sw.js`. The page and the five CSVs (with `availability-notes.csv`) are served network-first, and so
   is any cross-origin CSV (the availability answers, kept as
   `availability-answers.csv`); everything else cache-first. Bump `CACHE` in `sw.js` whenever
   `index.html` or `sw.js` changes: the new worker then reloads any page
@@ -277,5 +301,5 @@ service worker. Add checks for anything new. Then serve the repo root
 (`python3 -m http.server`) and look with Playwright
 (Chromium is preinstalled) at 320px, 375px and 1280px wide. Check the empty
 name state, a chosen name with its backups closed and open, Call out and
-Submit Timesheet. Watch for page errors and
+Resources. Watch for page errors and
 sideways scroll, and confirm the tab bar sits inside the viewport. Measure any new colour pair against WCAG AA.

@@ -28,7 +28,7 @@ function sandbox() {
   var box = {
     DAYS: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
     MONTHS: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-    FILES: { shifts: "shifts.csv", students: "students.csv", roles: "roles.csv" },
+    FILES: { shifts: "shifts.csv", students: "students.csv", roles: "roles.csv", notes: "availability-notes.csv" },
     CONFIG: { contacts: [{ role: "Student Kitchen Manager", name: "Art" }, { role: "Work Study Manager", name: "Nahelia" }],
               portal: "https://www.drbu.edu/timesheet", form: "", answers: "", contactList: "" },
     settingsProblems: [], data: null, PDF_H: 844, PDF_TOP: 18, PDF_W: 390
@@ -37,7 +37,7 @@ function sandbox() {
   /* the strings, in every language */
   vm.runInContext(html.slice(html.indexOf("var STR = {"), html.indexOf("/* END STRINGS */")) + "; this.STR = STR; var lang = 'en';", box);
   ["esc", "parseCSV", "dayIndex", "lower", "header", "cell", "list", "personGender", "roleGender", "yes",
-   "readRoles", "readStudents", "canDo", "canCover", "buildData", "readAvailability", "roleRank", "applySettings", "dateKey",
+   "readRoles", "readStudents", "canDo", "canCover", "buildData", "readAvailability", "readNotes", "roleRank", "applySettings", "dateKey",
    "nextDate", "longDate", "shortDate", "whenPill", "t", "dayName", "dayShort",
    "stripMedia", "fixedVw", "pdfCuts", "pdfText", "makePDF"].forEach(function (n) {
     vm.runInContext(lift(n), box);
@@ -56,9 +56,11 @@ function has(label, list, piece) {
   else { failed++; console.log("FAIL " + label + ": no problem containing " + JSON.stringify(piece) + "\n  " + JSON.stringify(list)); }
 }
 var b = sandbox();
-var SHIFTS = read("shifts.csv"), STUDENTS = read("students.csv"), ROLES = read("roles.csv");
+var SHIFTS = read("shifts.csv"), STUDENTS = read("students.csv"), ROLES = read("roles.csv"), NOTES = read("availability-notes.csv");
 /* null means "the shipped file" */
-function build(shifts, students, roles, answers) { return sandbox().buildData(shifts != null ? shifts : SHIFTS, students != null ? students : STUDENTS, roles != null ? roles : ROLES, answers); }
+function build(shifts, students, roles, answers, notes) {
+  return sandbox().buildData(shifts != null ? shifts : SHIFTS, students != null ? students : STUDENTS, roles != null ? roles : ROLES, answers, notes != null ? notes : NOTES);
+}
 function shiftOf(d, who, day) { return d.shifts.filter(function (x) { return x.who === who && b.DAYS[x.day] === day; })[0]; }
 function coverOf(d, who, day) { var s = shiftOf(d, who, day); return s ? s.cover : null; }
 /* swap one piece of a CSV for another */
@@ -139,6 +141,34 @@ has("7: a name not on the shift list", withAns.availProblems, "Row 7: \"Amelia Q
 has("7: an answer that isn't one of the three", withAns.availProblems, "\"Sometimes\" for Huiyi on Tuesday isn't Available, Maybe or Not available");
 check("7: answer problems are kept apart from the shift files'", [withAns.problems, withAns.availProblems.length], [[], 2]);
 check("7: no answers file: as before, and not counted as answered", [real.answered, withAns.answered, build(null, null, null, "").answered], [false, true, true]);
+check("7: the form's own notes columns and symbols (\"✅ Available\") are read as the sheet publishes them", [withAns.avail.Beth, withAns.avail.Lavanya],
+  [["no", "", "", "", ""], ["maybe", "", "", "", ""]]);
+check("7: an answering student working that day counts as Not available (Lavanya works Thursday and Friday)",
+  [withAns.said.Lavanya.slice(0, 5), withAns.byWork.Lavanya, withAns.shifts.filter(function (s) { return s.day === 3 && s.cover.indexOf("Lavanya") >= 0; }).length], [["maybe", "", "", "no", "no"], [3, 4], 0]);
+check("7: a student who didn't answer keeps Rule 4 (Adrian, Recycling on Monday, is a same-day backup for Pots & Pans)",
+  [withAns.said.Adrian.slice(0, 5), coverOf(withAns, "Adam", "Monday").indexOf("Adrian") >= shiftOf(withAns, "Adam", "Monday").lastFrom, coverOf(withAns, "Adam", "Monday").indexOf("Adrian") >= 0], [["", "", "", "", ""], true, true]);
+/* the notes file: a day set by hand */
+var NOTE_HEAD = "Student,Day,Suggested,Override,Why\n";
+function noted(notes, answers) { return build(null, null, null, answers, NOTE_HEAD + notes); }
+check("7: notes: the shipped Lower puts Huiyi after everyone else in the main list on Wednesday", (function () {
+  var s = shiftOf(real, "Vayu", "Wednesday"); return [s.cover.indexOf("Huiyi"), s.lastFrom - 1, real.said.Huiyi[2]];
+})(), [shiftOf(real, "Vayu", "Wednesday").lastFrom - 1, shiftOf(real, "Vayu", "Wednesday").lastFrom - 1, "lower"]);
+check("7: notes: without the file, Huiyi is listed by the usual order on Wednesday",
+  coverOf(build(null, null, null, null, ""), "Vayu", "Wednesday").indexOf("Huiyi") < shiftOf(real, "Vayu", "Wednesday").lastFrom - 1, true);
+check("7: notes: Lower comes after Maybe", (function () {
+  var d = noted("Beth,Monday,Lower,,\nPriya,Monday,Maybe,,\n"), s = shiftOf(d, "Adam", "Monday");
+  return s.cover.slice(s.lastFrom - 2, s.lastFrom);
+})(), ["Priya", "Beth"]);
+check("7: notes: Override beats Suggested, and Not available takes them off", [noted("Beth,Wednesday,Lower,Not available,\n").said.Beth[2],
+  coverOf(noted("Beth,Wednesday,Lower,Not available,\n"), "Vayu", "Wednesday").indexOf("Beth")], ["no", -1]);
+check("7: notes: Available beats the answer and the day they work (Lavanya on Thursday)",
+  noted("Lavanya,Thursday,,Available,\nLavanya,Monday,Available,,\n", ANSWERS).said.Lavanya.slice(0, 5), ["", "", "", "", "no"]);
+var badNotes = noted("Nobody,Monday,Lower,,\nBeth,Someday,Lower,,\nBeth,Monday,Later,,\nBeth,Tuesday,,,just a note\n");
+has("7: notes: a name not on the shift list", badNotes.problems, "availability-notes.csv line 2: \"Nobody\" isn't a name on the shift list");
+has("7: notes: not a day", badNotes.problems, "line 3: \"Someday\" isn't a day");
+has("7: notes: not one of the four", badNotes.problems, "line 4: \"Later\" isn't Available, Maybe, Lower or Not available");
+check("7: notes: a row with no value is only a note", [badNotes.problems.length, badNotes.said.Beth[1]], [3, ""]);
+check("7: notes: an empty file is fine", build(null, null, null, null, "").problems, []);
 function ans(text) { var p = []; return { a: b.readAvailability(text, ["Ann", "Bo"], p), p: p }; }
 check("7: plain day headers and other words", ans("Name,Mon,Tuesday,Wed\nAnn,no,unavailable,not sure\nBo,Yes,N,Maybe later\n").a,
   { Ann: ["no", "no", "maybe"], Bo: ["", "no", "maybe"] });
@@ -280,7 +310,7 @@ has("shifts: Ben Kong off Recycling", probs(edit(SHIFTS, "Ben Kong,Tuesday,Recyc
 has("shifts: untrained Lunch Monitor", probs(edit(SHIFTS, "Beth,Wednesday,Pots & Pans", "Beth,Wednesday,Lunch Monitor")), "Beth can't do Lunch Monitor");
 has("shifts: too few", probs(SHIFTS + "Zed,Friday,Pots & Pans\r\n", STUDENTS + "Zed,M,,\r\n"), "Zed has 1 shift (expected 2 to 4)");
 check("shifts: duplicate row ignored", build(SHIFTS + "Adam,Monday,Pots & Pans\r\n").shifts.length, 41);
-var ctor = build("Student,Shift day,Role\nconstructor,Monday,Pots & Pans\nconstructor,Tuesday,Pots & Pans\n", "Student,Gender,Only does,Trained for\nconstructor,F,,\n");
+var ctor = build("Student,Shift day,Role\nconstructor,Monday,Pots & Pans\nconstructor,Tuesday,Pots & Pans\n", "Student,Gender,Only does,Trained for\nconstructor,F,,\n", null, null, "");
 var noOnly = build(null, STUDENTS.replace(/^(\uFEFF?)Student,Gender,Trained for,Only does,/, "$1Student,Gender,Trained for,Was only does,"));
 check("students.csv: the Only does column may be left out", [noOnly.problems, coverOf(noOnly, "Adam", "Thursday").indexOf("Ben Kong") >= 0], [[], true]);
 check("names like constructor are plain names", [ctor.problems, ctor.names], [[], ["constructor"]]);

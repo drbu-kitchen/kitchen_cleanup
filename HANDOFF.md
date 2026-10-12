@@ -155,8 +155,8 @@ take one of their shifts in return: on another day, and allowed by Rules
    3. **Another group,** for example a lunch monitor.
 
    Within each, fewest shifts first, then alphabetical order. Anyone who
-   answered Maybe for the day comes after the rest, in the same order
-   (Rule 7).
+   answered Maybe for the day comes after the rest, in the same order, and
+   anyone set to Lower comes after them (Rule 7).
 2. **The last resort,** boxed off below:
    1. Students not working that day with **no shift you could take back**
       (they'd help without a swap), in the same order.
@@ -192,6 +192,30 @@ come from the form's published sheet (⚙ *Availability answers link* in
   last resort stays where they are, with the tag.
 - **No answer, or answers that can't be read:** available.
 - A student who answers again replaces their earlier answers.
+- **A day you already work counts as Not available,** whatever you
+  answered, once you have answered the form. Students were told to answer
+  Not available for their own shift days, and some answered Available
+  instead. A student who hasn't answered keeps Rule 4's same-day doubles.
+- **Set by hand: `availability-notes.csv`.** The form also asks what else
+  each student has that day (a class until 11, a job at 12:30). Those
+  notes are free text, so the app doesn't read them: someone reads them
+  and writes a row (Student, Day, Suggested, Override, Why). ⚙ *Suggested*
+  is the reading of the notes; ⚙ *Override*, when filled in, beats it.
+  Either is one of:
+  - **Available:** counts as available, even against their answer or a
+    day they work (for a double the hours allow).
+  - **Maybe:** as if they had answered Maybe.
+  - **Lower:** for something just before or after the shift. Asked after
+    the Maybes, still above the last resort. No tag.
+  - **Not available:** as if they had answered it.
+
+  A row beats both the form and the day-you-work rule. *Why* is for
+  whoever edits the file; the app never shows it.
+- **Who hasn't answered.** Once the answers load, a small amber **!**
+  sits beside the name of everyone who hasn't filled in the form, wherever
+  the name appears (the name list too), so the crew can see. A student who
+  hasn't answered also sees a note at the top of every tab with the form's
+  link. It goes as soon as they answer. Not in the PDF.
 
 **Where instructions pulled against each other, and how it's settled.**
 For the record, so a later rule change starts from here:
@@ -222,11 +246,17 @@ For the record, so a later rule change starts from here:
    since you won't be there (Rule 5).
 8. A swap only counts where the hours allow it. A shift on a day you
    already work counts only as a double Rule 4 allows.
+9. The form told students to answer Not available for days they already
+   work, which pulls against Rule 4's same-day doubles. Settled: once a
+   student answers, their working days count as Not available, even if
+   they answered Available. A row in `availability-notes.csv` can set a
+   day back to Available.
 
 `tests/expected-cover-lists.csv` holds every shift's list as worked out by
 a second, independent copy of these rules (`tests/expected_cover_lists.py`),
 and the app is tested against it. `tests/expected-cover-lists-availability.csv`
-does the same with a made-up set of form answers, for Rule 7.
+does the same with a made-up set of form answers, for Rule 7. Both use
+the real `availability-notes.csv`.
 
 ---
 

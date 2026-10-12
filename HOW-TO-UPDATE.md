@@ -24,6 +24,7 @@ the files link.
 | Who works which day, in which role | `shifts.csv` |
 | Who the students are: gender, training, and any special limits | `students.csv` |
 | The rules for each role: gender, training, work group, same-day backups (rarely) | `roles.csv` |
+| A student's day set by hand, from what they wrote on the availability form | `availability-notes.csv` (see **6g**) |
 
 **You never write the cover lists.** The app works out who can cover each
 shift from these files, by the rules in **"How the cover lists are worked
@@ -249,7 +250,13 @@ The app reads the answers and uses them in every cover list:
 - **Not available:** never asked to cover that day.
 - **Maybe:** asked after everyone who is available, just above the last
   resort, with a **Maybe** tag beside their name.
-- **No answer:** counts as available.
+- **No answer:** counts as available, but a small amber **!** sits beside
+  their name everywhere in the app, and they see a note at the top of
+  every tab with the form's link, until they answer.
+- **A day they already work:** counts as Not available, whatever they
+  answered (once they have answered).
+- **Set by hand:** a row in `availability-notes.csv` beats all of these
+  (**g**).
 
 If a student answers twice, the newest answer counts. On **My
 availability**, each student sees their own answers and a button to the
@@ -257,7 +264,7 @@ form.
 
 The **contact list** is a Google Sheet with everyone's phone number. Only
 the people it's shared with can open it. The app links to it on Call out
-and Submit Timesheet, but never reads it.
+and Resources, but never reads it.
 
 Use a Google account that will be handed on, and make the Work Study
 Manager an editor of all three Google files (the form, its answers sheet
@@ -279,10 +286,16 @@ school account blocks it: use a personal Gmail account instead.
    **Multiple choice grid**. Rows: `Monday`, `Tuesday`, `Wednesday`,
    `Thursday`, `Friday`. Columns: `Available`, `Maybe`, `Not available`.
    Turn on **Require a response in each row**.
-5. **Settings → Responses:** **Collect email addresses** → **Do not
+   Ask students to choose **Not available** for days they already work.
+4. **Optional, one per day:** a **Short answer** question such as
+   `Monday availability`, asking what else they have that day (a class
+   until 11, a job at 12:30). The app doesn't read these words; someone
+   does, and writes `availability-notes.csv` from them (**g**). Don't put a
+   day's name alone as the question, or in square brackets.
+6. **Settings → Responses:** **Collect email addresses** → **Do not
    collect**. Leave **Limit to 1 response** off, so students don't need a
    Google account.
-6. Click **Publish**, and under **Responders** choose **Anyone with the
+7. Click **Publish**, and under **Responders** choose **Anyone with the
    link**. Copy the form's link (**Send** → the link icon → **Shorten
    URL**). It looks like `https://forms.gle/…`.
 
@@ -367,9 +380,44 @@ Send a reminder at the start of each month, or whenever schedules change.
    heading row and the tab, so the published link keeps working.
 3. **Contact list:** remove the rows of students who left, add the new
    names, and remove people who left from **Share**.
-4. Send the message in **e** again.
+4. **Notes:** in `availability-notes.csv`, delete every row but the
+   first (the headings).
+5. Send the message in **e** again.
 
 The links stay the same, so `settings.csv` needs no change.
+
+### g) Read the notes, and set a day by hand
+
+The form's short answers are free text, so the app can't read them.
+Instead, someone reads them in the answers sheet and writes
+`availability-notes.csv`, one row per student and day that needs it.
+Students without a row are left as they answered.
+
+| Column | What to put |
+| --- | --- |
+| **Student** | Their name, exactly as in `shifts.csv` |
+| **Day** | `Monday` … `Friday` |
+| **Suggested** | Your reading of what they wrote |
+| **Override** | Leave blank, unless you know better than the Suggested value. When it's filled in, it wins. |
+| **Why** | A few words, for whoever edits this file next. The app never shows it. |
+
+Suggested and Override each take one of:
+- `Lower`: they can cover, but have something just before or after the
+  shift. They're asked after the Maybes, still above the last resort.
+- `Not available`: they can't, whatever they answered.
+- `Maybe`: as if they had answered Maybe.
+- `Available`: they can, whatever they answered, even on a day they
+  already work (only where the hours allow a double).
+
+For example:
+
+```
+Student,Day,Suggested,Override,Why
+Huiyi,Wednesday,Lower,,Teaches right after the shift
+```
+
+Edit it on GitHub as in **3**. Problems show in the footer, as in **5**.
+Read the notes again when new answers come in.
 
 ---
 
