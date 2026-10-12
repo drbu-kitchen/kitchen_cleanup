@@ -145,6 +145,12 @@ check("7: the form's own notes columns and symbols (\"✅ Available\") are read 
   [["no", "", "", "", ""], ["maybe", "", "", "", ""]]);
 check("7: an answering student working that day counts as Not available (Lavanya works Thursday and Friday)",
   [withAns.said.Lavanya.slice(0, 5), withAns.byWork.Lavanya, withAns.shifts.filter(function (s) { return s.day === 3 && s.cover.indexOf("Lavanya") >= 0; }).length], [["maybe", "", "", "no", "no"], [3, 4], 0]);
+check("7: but not on a day they do Recycling: Adam answered Available for his Thursday Recycling, so he stays a same-day backup",
+  [withAns.said.Adam.slice(0, 5), withAns.byWork.Adam, (function () { var s = shiftOf(withAns, "Beth", "Thursday"); return s.cover.indexOf("Adam") >= s.lastFrom; })()],
+  [["no", "no", "no", "", ""], [0, 1], true]);
+check("7: the roles.csv setting decides it: with it off, working days count as answered",
+  build(null, null, ROLES.replace(/,Yes(\r?\n)/g, ",$1"), ANSWERS).byWork.Lavanya, []);
+check("7: a Shift Leader day counts as Pots & Pans for it", withAns.byWork.Lavanya, [3, 4]);
 check("7: a student who didn't answer keeps Rule 4 (Adrian, Recycling on Monday, is a same-day backup for Pots & Pans)",
   [withAns.said.Adrian.slice(0, 5), coverOf(withAns, "Adam", "Monday").indexOf("Adrian") >= shiftOf(withAns, "Adam", "Monday").lastFrom, coverOf(withAns, "Adam", "Monday").indexOf("Adrian") >= 0], [["", "", "", "", ""], true, true]);
 /* the notes file: a day set by hand */

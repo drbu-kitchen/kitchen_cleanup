@@ -50,7 +50,7 @@ types the lists.
 | --- | --- | --- |
 | `shifts.csv` | shift | Student, Shift day, Role |
 | `students.csv` | student | Student, Gender (F/M, never shown), Trained for (`;`-separated), and for special students: Only does (the roles they can work), Only covers (the roles they can substitute for, or `None`), Covered only by same job (`Yes`). Blank = no limit. The last three columns are optional. |
-| `roles.csv` | role, in card order | Role, Work group, Covered as (optional: Shift Leader → Pots & Pans), Gender (Any / Women only / Men only), Trained students only (Yes/No), Same-day backups (asked last, `;`-separated, in order) |
+| `roles.csv` | role, in card order | Role, Work group, Covered as (optional: Shift Leader → Pots & Pans), Gender (Any / Women only / Men only), Trained students only (Yes/No), Same-day backups (asked last, `;`-separated, in order), Working it means not available (Yes/blank, optional) |
 | `availability-notes.csv` (optional) | student and day set by hand | Student, Day, Suggested, Override (wins when filled in), Why (never shown). The value is Available, Maybe, Lower or Not available. Written by a person from the form's short answers (HOW-TO-UPDATE.md, 6g). |
 
 **A cover list** follows the numbered rules in HANDOFF.md, "How the cover
@@ -68,7 +68,9 @@ and the tests follow it. In short:
   available** for a day is never a backup that day, and is never offered
   as a swap on that day. Someone who answered **Maybe** moves to just
   above the last resort. No answer counts as available. Once a student
-  has answered, a day they already work counts as Not available. A row in
+  has answered, a day they already work a role marked *Working it means
+  not available* (Pots & Pans, Buckets & Composting) counts as Not
+  available. A row in
   `availability-notes.csv` beats both; **Lower** puts them after the
   Maybes.
 

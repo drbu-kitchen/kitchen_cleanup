@@ -632,13 +632,13 @@ function serve(dir, port) {
     [false, "https://docs.google.com/spreadsheets/d/CONTACTS/edit", "CONTACT LIST"]);
   await p.goto(BASE + "#availability"); await ready(p); await p.waitForTimeout(150);
   check("answers: Adam's own answers and the form", [await text(p, ".answers"), await p.getAttribute(".answers .out-link", "href")],
-    ["YOUR AVAILABILITY FORM Not available: Monday, Tuesday, Wednesday, Thursday. No one will ask you to cover then. You already work on Monday, Tuesday, Thursday, so you count as not available then. Have your plans changed? Fill in the form again. Your newest answers count. Open the availability form \u2197", "https://forms.gle/TEST"]);
+    ["YOUR AVAILABILITY FORM Not available: Monday, Tuesday, Wednesday. No one will ask you to cover then. You already work on Monday, Tuesday, so you count as not available then. Have your plans changed? Fill in the form again. Your newest answers count. Open the availability form \u2197", "https://forms.gle/TEST"]);
   check("answers: no Wednesday rows for someone not available on Wednesday", await p.$$eval("#avail-body tr[data-trade]", function (r) {
     return r.filter(function (x) { return /^Wednesday\|/.test(x.dataset.trade); }).length;
   }), 0);
   await p.evaluate(function () { localStorage.setItem("kitchen.lang", "zh-Hans"); }); await p.reload(); await ready(p);
   await p.waitForFunction(function () { return document.querySelector(".answers p"); });
-  check("answers: in Chinese, the days in Chinese", await text(p, ".answers p"), "没空：星期一、星期二、星期三、星期四。这些日子不会有人请你替班。");
+  check("answers: in Chinese, the days in Chinese", await text(p, ".answers p"), "没空：星期一、星期二、星期三。这些日子不会有人请你替班。");
   await p.context().close();
   p = await answersPage("Nita", SAMPLE);
   await p.goto(BASE + "#availability"); await ready(p);

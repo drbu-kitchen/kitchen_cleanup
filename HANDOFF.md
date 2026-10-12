@@ -192,10 +192,15 @@ come from the form's published sheet (⚙ *Availability answers link* in
   last resort stays where they are, with the tag.
 - **No answer, or answers that can't be read:** available.
 - A student who answers again replaces their earlier answers.
-- **A day you already work counts as Not available,** whatever you
-  answered, once you have answered the form. Students were told to answer
-  Not available for their own shift days, and some answered Available
-  instead. A student who hasn't answered keeps Rule 4's same-day doubles.
+- **A day you already work Pots & Pans (or Shift Leader) or Buckets &
+  Composting counts as Not available,** whatever you answered, once you
+  have answered the form. Students were told to answer Not available for
+  those days, and some answered Available instead. ⚙ *Working it means not
+  available* in `roles.csv` (a role Covered as another uses that role's
+  setting). A Recycling or Lunch Monitor day keeps the answer: someone
+  working it who answered Available is still a same-day backup, last
+  resort as in Rule 4. A student who hasn't answered keeps Rule 4's
+  same-day doubles everywhere.
 - **Set by hand: `availability-notes.csv`.** The form also asks what else
   each student has that day (a class until 11, a job at 12:30). Those
   notes are free text, so the app doesn't read them: someone reads them
@@ -247,10 +252,12 @@ For the record, so a later rule change starts from here:
 8. A swap only counts where the hours allow it. A shift on a day you
    already work counts only as a double Rule 4 allows.
 9. The form told students to answer Not available for days they already
-   work, which pulls against Rule 4's same-day doubles. Settled: once a
-   student answers, their working days count as Not available, even if
-   they answered Available. A row in `availability-notes.csv` can set a
-   day back to Available.
+   work, which pulls against Rule 4's same-day doubles. Settled: it holds
+   only for Pots & Pans and Buckets & Composting days. Once a student
+   answers, those days count as Not available, even if they answered
+   Available. Recycling and Lunch Monitor days keep the answer, so Rule 4's
+   doubles stand there. A row in `availability-notes.csv` can set any day
+   back to Available.
 
 `tests/expected-cover-lists.csv` holds every shift's list as worked out by
 a second, independent copy of these rules (`tests/expected_cover_lists.py`),

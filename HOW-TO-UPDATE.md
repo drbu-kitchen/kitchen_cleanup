@@ -200,6 +200,7 @@ their name in **both** `shifts.csv` and `students.csv`.
 | **Gender** | Who can do it, and so who can cover it | `Any`, `Women only` or `Men only` |
 | **Trained students only** | `Yes` means only students with this role under **Trained for** can do or cover it | `Yes` or `No` |
 | **Same-day backups (asked last)** | Roles whose students, even when already working that day, can cover this role because the hours allow both. They're asked only after everyone else, in the order listed, separated by `;`. A role that's **Covered as** another uses that role's list instead. | for example `Recycling; Lunch Monitor` |
+| **Working it means not available** | `Yes` means a student working this role that day can't cover anyone, even if they answered Available on the availability form (only once they have answered it). Leave blank where a double is possible. A role that's **Covered as** another uses that role's setting. | `Yes` or blank |
 
 For example:
 - To let anyone do Recycling, change its **Gender** to `Any`.
@@ -253,8 +254,9 @@ The app reads the answers and uses them in every cover list:
 - **No answer:** counts as available, but a small amber **!** sits beside
   their name everywhere in the app, and they see a note at the top of
   every tab with the form's link, until they answer.
-- **A day they already work:** counts as Not available, whatever they
-  answered (once they have answered).
+- **A day they already work Pots & Pans or Buckets & Composting:**
+  counts as Not available, whatever they answered (once they have
+  answered). A Recycling or Lunch Monitor day keeps their answer.
 - **Set by hand:** a row in `availability-notes.csv` beats all of these
   (**g**).
 

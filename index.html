@@ -1754,8 +1754,8 @@ p{margin:0}
     var rows = parseCSV(text), F = FILES.roles, roles = { order: [], by: Object.create(null) };
     var col = header(rows, F, { role: /^role/, group: /group/, gender: /^gender/, trained: /^trained/, same: /^same/ }, problems);
     if (!col) return roles;
-    var asCol = -1;
-    rows[0].forEach(function (h, i) { if (/^covered/.test(lower(h))) asCol = i; });
+    var asCol = -1, busyCol = -1;
+    rows[0].forEach(function (h, i) { if (/^covered/.test(lower(h))) asCol = i; else if (/^working/.test(lower(h))) busyCol = i; });
     rows.slice(1).forEach(function (r, n) {
       var name = cell(r, col.role), key = lower(name), line = F + " line " + (n + 2) + ": ";
       if (!name) return;
@@ -1763,7 +1763,8 @@ p{margin:0}
       var g = roleGender(cell(r, col.gender));
       if (g === null) { problems.push(line + name + "'s gender should be Any, Women only or Men only."); g = "any"; }
       roles.by[key] = { name: name, group: lower(cell(r, col.group)) || key, gender: g, trained: yes(cell(r, col.trained)),
-                        same: list(cell(r, col.same)), as: asCol < 0 ? "" : lower(cell(r, asCol)), rank: roles.order.length };
+                        same: list(cell(r, col.same)), as: asCol < 0 ? "" : lower(cell(r, asCol)), rank: roles.order.length,
+                        busy: busyCol >= 0 && yes(cell(r, busyCol)) };
       roles.order.push(key);
     });
     roles.order.forEach(function (k) {
@@ -1881,7 +1882,9 @@ p{margin:0}
     });
     /* what counts for each student and day (Rule 7): their row in the
        notes file if there is one; else, for a student who answered the
-       form, Not available on a day they already work; else their answer.
+       form, Not available on a day they already work a job whose ⚙
+       "Working it means not available" is Yes (as covered: a Shift Leader
+       is Pots & Pans); else their answer.
        "", "maybe", "lower" or "no". byWork: the days the second made
        Not available, against what they answered. */
     out.said = Object.create(null);
@@ -1891,7 +1894,7 @@ p{margin:0}
       for (var d = 0; d < 7; d++) {
         mine[d] = a && a[d] || "";
         if (notes[n] && notes[n][d] != null) mine[d] = notes[n][d];
-        else if (a && onDay[n] && d in onDay[n] && mine[d] !== "no") { mine[d] = "no"; work.push(d); }
+        else if (a && onDay[n] && d in onDay[n] && roles.by[onDay[n][d]].busy && mine[d] !== "no") { mine[d] = "no"; work.push(d); }
       }
     });
     /* Can n cover shift x? (Rules 2, 3, 4 and 7) */

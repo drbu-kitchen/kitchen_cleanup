@@ -21,7 +21,8 @@ and the tab shell from the second.
   `students.csv` (Student, Gender F/M, Trained for, and the optional
   Only does, Only covers, Covered only by same job) and `roles.csv`
   (Role, Work group, Covered as, Gender Any/Women only/Men only, Trained
-  students only, Same-day backups). They are fetched, so the app must be
+  students only, Same-day backups, and the optional Working it means not
+  available). They are fetched, so the app must be
   served. **The app works out every cover list** (`buildData()`). **The
   specification is HANDOFF.md, "How the cover lists are worked out"
   (Groups A/B/C, the user's Rules 1–6, Rule 7 for the availability form,
@@ -47,8 +48,11 @@ and the tab shell from the second.
   (made up, shaped like the form's published sheet: symbols before the
   answers, "Monday availability" notes columns that are not day columns,
   a stray "[Row 6]"). Two more parts of Rule 7, settled with the user:
-  once a student has answered, a day they already work is "no"
-  (`out.byWork`; students were told to answer so, and some didn't), and
+  once a student has answered, a day they already work is "no" if that
+  job (as covered) has `roles.csv`'s Working it means not available = Yes
+  (`role.busy`, `out.byWork`): Pots & Pans and Buckets & Composting. The
+  user ruled Recycling and Lunch Monitor out of it: those keep the answer,
+  so Rule 4's same-day doubles stand, and
   `availability-notes.csv` (`readNotes()`; Student, Day, Suggested,
   Override, Why) beats both, Override over Suggested: Available, Maybe,
   Lower or Not available. Lower ("lower") goes after the Maybes, still

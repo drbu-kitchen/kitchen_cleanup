@@ -20,7 +20,8 @@ The rules are in HANDOFF.md, "How the cover lists are worked out":
   Someone who answered "Maybe" for a day moves to just above the last resort
   (in the same order among themselves). A later answer replaces an earlier
   one; a blank counts as available. Someone who answered counts as "Not
-  available" on a day they already work, whatever they answered. A row in
+  available" on a day they already work a job marked "Working it means not
+  available" in roles.csv (as covered), whatever they answered. A row in
   availability-notes.csv (Override, else Suggested) beats both: Available,
   Maybe, Lower (after the Maybes, still above the last resort) or Not
   available. The notes apply to both lists below.
@@ -60,6 +61,7 @@ for r in rows("roles.csv"):
         "gender": "any" if g.startswith("any") or not g else ("F" if g.startswith(("w", "f")) else "M"),
         "trained": yes(r["Trained students only"]),
         "same": split(r["Same-day backups (asked last)"]),
+        "busy": yes(r.get("Working it means not available")),
     }
 
 
@@ -145,7 +147,7 @@ def counted(answers):
     for n in names:
         for d in range(7):
             v = answers.get(n, {}).get(d, "")
-            if n in answers and (n, d) in job_on:
+            if n in answers and (n, d) in job_on and roles[job_on[(n, d)]]["busy"]:
                 v = "no"
             v = notes.get(n, {}).get(d, v)
             if v:
