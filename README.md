@@ -6,8 +6,8 @@
 > availability form and contact list. No code needed.
 > **Handing it over to the next person?** Read **[HANDOFF.md](HANDOFF.md)**.
 >
-> **The app:** https://arlov-commits.github.io/kitchen_cleanup/
-> **Its files:** https://github.com/arlov-commits/kitchen_cleanup
+> **The app:** https://drbu-kitchen.github.io/kitchen_cleanup/
+> **Its files:** https://github.com/drbu-kitchen/kitchen_cleanup
 >
 > *These two links are the only place the guides take them from. Update
 > them here if the app ever moves (see HANDOFF.md).*

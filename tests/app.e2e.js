@@ -648,7 +648,8 @@ function serve(dir, port) {
   check("answers missing: the plain lists", await p.$$eval(".shift.k0 .cover .cn", function (n) { return n.map(function (x) { return x.textContent; }); }),
     ["Beth", "Lavanya", "Priya", "Roxanne", "Tsering", "Irina", "Thanh", "Adrian", "Vayu", "Shuxing"]);
   await p.context().close();
-  p = await page({ init: function () { localStorage.setItem("kitchen.me", "Adam"); } });
+  p = await page({ init: function () { localStorage.setItem("kitchen.me", "Adam"); },
+    settings: "Setting,Value\nStudent Kitchen Manager,Art\nWork Study Manager,Nahelia\nTimesheet portal link,https://www.drbu.edu/timesheet\n" });
   await p.goto(BASE + "#timesheet"); await ready(p); await p.waitForTimeout(150);
   check("no links in the settings: no contact list, no form panel, no answers in the footer", [await p.$eval("#clist", function (e) { return e.hidden; }),
     await p.evaluate(function () { return document.querySelectorAll(".step .cl, .answers, .mb").length; }), /Availability/.test(await text(p, "#data-status"))], [true, 0, false]);

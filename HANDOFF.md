@@ -30,11 +30,6 @@ Manager. If one leaves without handing over, the other can still let the
 next person in. If the last owner leaves, nobody can get back in to update
 the app.
 
-> **First time only.** If the README's files link has a person's name in
-> it rather than an organization's (when this page was written it was
-> `github.com/arlov-commits/…`), the organization hasn't been set up yet.
-> Do **"Setting up the organization"** at the bottom of this page first.
-
 ---
 
 ## Before you meet
