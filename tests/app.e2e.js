@@ -628,8 +628,15 @@ function serve(dir, port) {
     return a.map(function (x) { return x.closest(".sit").id + " " + x.getAttribute("href") + " " + x.target; });
   }), ["sit-today", "sit-maybe", "sit-sick", "sit-plan"].map(function (id) { return id + " https://docs.google.com/spreadsheets/d/CONTACTS/edit _blank"; }));
   await p.goto(BASE + "#timesheet"); await ready(p); await p.waitForTimeout(150);
-  check("answers: Submit Timesheet shows the contact list", [await p.$eval("#clist", function (e) { return e.hidden; }), await p.getAttribute("#clist-a", "href"), await text(p, "#clist h4")],
-    [false, "https://docs.google.com/spreadsheets/d/CONTACTS/edit", "CONTACT LIST"]);
+  check("answers: Resources shows the contact list, a card like the timesheet's", [await p.$eval("#clist", function (e) { return e.hidden; }), await p.getAttribute("#clist-a", "href"),
+    await text(p, "#clist .eyebrow"), await text(p, "#clist .big"), await p.$eval("#clist", function (e) { return e.parentNode.className; })],
+    [false, "https://docs.google.com/spreadsheets/d/CONTACTS/edit", "NEED A PHONE NUMBER?", "Contact list", "res"]);
+  await p.setViewportSize({ width: 1280, height: 800 });
+  check("Resources: the two cards side by side on a wide screen, the same height", await p.evaluate(function () {
+    var a = document.querySelector(".due").getBoundingClientRect(), b = document.querySelector(".clist").getBoundingClientRect();
+    return [Math.round(a.top) === Math.round(b.top), b.left > a.right, Math.round(a.height) === Math.round(b.height)];
+  }), [true, true, true]);
+  await p.setViewportSize({ width: 375, height: 780 });
   await p.goto(BASE + "#availability"); await ready(p); await p.waitForTimeout(150);
   check("answers: Adam's own answers and the form", [await text(p, ".answers"), await p.getAttribute(".answers .out-link", "href")],
     ["YOUR AVAILABILITY FORM Not available: Monday, Tuesday, Wednesday. No one will ask you to cover then. You already work on Monday, Tuesday, so you count as not available then. Have your plans changed? Fill in the form again. Your newest answers count. Open the availability form \u2197", "https://forms.gle/TEST"]);
@@ -653,7 +660,7 @@ function serve(dir, port) {
   }));
   check("not answered: the mark in the pills and the name list", [await p.$$eval("[data-who] .me-pill .na", function (n) { return n.length; }),
     await p.$eval("#me option[value=Nita]", function (o) { return o.textContent; }), await p.$eval("#me option[value=Adam]", function (o) { return o.textContent; })],
-    [4, "Nita (!)", "Adam"]);
+    [4, "Nita \u26A0\uFE0F", "Adam"]);
   var marked = function (sel) {
     return p.$$eval(sel, function (c) {
       return c.map(function (x) { return x.innerHTML; }).join(", ").replace(/<span class="na[^>]*><\/span>/g, "!").replace(/<[^>]+>/g, "").split(/,\s*/).map(function (n) { return n.trim(); }).filter(Boolean);
@@ -664,11 +671,21 @@ function serve(dir, port) {
   check("not answered: the mark beside each name in Who may ask that hasn't answered", [who.length > 3, who], [true, expectMarks(who)]);
   await p.click("#bottom-nav a[href='#shifts']"); await p.waitForFunction(function () { return !document.getElementById("view-shifts").hidden; });
   var crew = await marked(".crew li > span:first-child"), covers = await marked(".cover .cn");
-  check("not answered: the mark in On with you and the backup lists", [crew.length > 0, crew, covers.length > 5, covers.map(function (c) { return c.replace(/\s*Maybe$/, ""); })],
-    [true, expectMarks(crew), true, expectMarks(covers.map(function (c) { return c.replace(/\s*Maybe$/, ""); }))]);
+  check("not answered: the mark in the backup lists, but not in On with you", [crew.length > 0, crew.filter(function (c) { return /!$/.test(c); }), covers.length > 5, covers.map(function (c) { return c.replace(/\s*Maybe$/, ""); })],
+    [true, [], true, expectMarks(covers.map(function (c) { return c.replace(/\s*Maybe$/, ""); }))]);
+  check("not answered: the banner is loud: caution yellow with a striped edge", await p.$eval("[data-nofill]", function (b) {
+    var cs = getComputedStyle(b), st = getComputedStyle(b, "::before");
+    return [cs.backgroundColor, /repeating-linear-gradient/.test(st.backgroundImage)];
+  }), ["rgb(255, 212, 59)", true]);
   check("not answered: the mark's words for screen readers, and its ! from CSS", await p.$eval(".cover .na", function (na) {
     return [na.getAttribute("aria-label"), getComputedStyle(na, "::before").content, na.textContent];
   }), ["Hasn't filled in the availability form", '"!"', ""]);
+  await p.context().close();
+  p = await answersPage("Lavanya", "Name,Monday,Tuesday,Wednesday,Thursday,Friday\nLavanya,Not available,Not available,Not available,Not available,Not available\n");
+  await p.goto(BASE + "#availability"); await ready(p);
+  await p.waitForFunction(function () { return /Availability answers/.test(document.getElementById("data-status").textContent); });
+  check("no backup days: no lead, just the note", [await p.$eval("#avail-lead", function (e) { return e.hidden; }), await text(p, "#avail-body > .note:first-child")],
+    [true, "You're not listed as a backup on any day."]);
   await p.context().close();
   p = await answersPage("Adam", 404);
   await p.goto(BASE); await ready(p);

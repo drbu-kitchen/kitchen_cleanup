@@ -217,10 +217,11 @@ come from the form's published sheet (⚙ *Availability answers link* in
   A row beats both the form and the day-you-work rule. *Why* is for
   whoever edits the file; the app never shows it.
 - **Who hasn't answered.** Once the answers load, a small amber **!**
-  sits beside the name of everyone who hasn't filled in the form, wherever
-  the name appears (the name list too), so the crew can see. A student who
-  hasn't answered also sees a note at the top of every tab with the form's
-  link. It goes as soon as they answer. Not in the PDF.
+  sits beside the name of everyone who hasn't filled in the form: in the
+  backup lists, in Who may ask, and on the name (⚠️ in the name list), so
+  the crew can see. Not in On with you. A student who hasn't answered also
+  sees a loud yellow banner at the top of every tab with the form's link.
+  Both go as soon as they answer. Not in the PDF.
 
 **Where instructions pulled against each other, and how it's settled.**
 For the record, so a later rule change starts from here:

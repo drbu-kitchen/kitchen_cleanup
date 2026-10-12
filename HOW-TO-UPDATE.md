@@ -252,8 +252,9 @@ The app reads the answers and uses them in every cover list:
 - **Maybe:** asked after everyone who is available, just above the last
   resort, with a **Maybe** tag beside their name.
 - **No answer:** counts as available, but a small amber **!** sits beside
-  their name everywhere in the app, and they see a note at the top of
-  every tab with the form's link, until they answer.
+  their name in the backup lists (⚠️ in the name list), and they see a
+  yellow banner at the top of every tab with the form's link, until they
+  answer.
 - **A day they already work Pots & Pans or Buckets & Composting:**
   counts as Not available, whatever they answered (once they have
   answered). A Recycling or Lunch Monitor day keeps their answer.

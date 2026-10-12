@@ -174,7 +174,8 @@ and the tab shell from the second.
 - "My availability" is its own tab, between My shifts and Call out (the
   user moved it from a sage band under the shift cards, then before Call
   out). Its head lead names the chosen student, and says they don't have
-  to say yes but should **reply with a yes or a no** if asked. The body has
+  to say yes but should **reply with a yes or a no** if asked. It is left
+  out for a student who is no one's backup (the user asked). The body has
   the day cards, then the student's own form answers (when the form is set
   up), then a line to tell the Student Kitchen Manager (from the
   settings) if anything is wrong. Keep it short.
@@ -212,16 +213,25 @@ and the tab shell from the second.
 - **Who hasn't answered the form.** Once the answers load
   (`data.answered`), everyone with no row gets a small amber **!**
   (`.na`, a gold circle whose "!" is CSS, so names copy cleanly; `noForm()`,
-  `naMark()`) beside their name everywhere: the backup lists, On with
-  you, Who may ask, the name pills, and "(!)" in the name list. The user
+  `naMark()`) beside their name in the backup lists, Who may ask and the
+  name pills, and "⚠️" in the name list (the user saw "(!)" on most names
+  read as a bug). Never in On with you (the user took it out). The user
   wants the crew to see it, as pressure to answer. There is no legend: a
   student who hasn't answered sees `.nofill` (`[data-nofill]`, at the top
   of all four tabs), in the user's words, only "You haven't filled in the
   availability form yet." and the form's link, "Fill in the form", under
-  it. Both are `screen-only`.
+  it. The user wanted it to look annoying and unlike the rest of the app:
+  caution yellow (`--warn`/`--warn-ink`, the same in both modes) with a
+  hazard-striped left edge. Both are `screen-only`.
 - The last tab is **Resources** (the user wanted one word; its hash stays
-  `#timesheet`, and `tab_timesheet` is the key). It gives the deadline (Sunday, 5 pm), a
-  button to https://www.drbu.edu/timesheet, and a motto echoing Call
+  `#timesheet`, and `tab_timesheet` is the key; its icon is a folder, not
+  the old clock). Two cards alike (`.res`): the timesheet (`.due`: the
+  deadline, Sunday, 5 pm, then the loud rust button to
+  https://www.drbu.edu/timesheet) and the contact list (`.clist`, `#clist`:
+  the same anatomy with a grey rule and a quiet outlined button). Side by
+  side from 600px on one grid (`.res-col` is `display:contents` there, so
+  the cards share a row and match heights), stacked on phones, where each
+  card would be ~160px wide. Then a motto echoing Call
   out's: "It's not done until your hours are *submitted.*" On a Sunday its tab carries a "1"
   bubble until that button is pressed that day (`kitchen.timesheet` holds
   the date it was pressed).
