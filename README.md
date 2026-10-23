@@ -83,8 +83,8 @@ The footer checks all three files and names anything that looks wrong:
 - a student who can't do their own role (gender, Only does, training);
 - a bad gender or yes/no value, or a role or student listed twice;
 - a student twice on one day (the second row is ignored);
-- a student with fewer than 2 or more than 4 shifts, or in
-  `students.csv` with no shifts;
+- a student in `students.csv` with no shifts (any other number of
+  shifts is fine);
 - in `availability-notes.csv`, a name not on the shift list, a day that
   isn't one, or a value that isn't Available, Maybe, Lower or Not
   available.

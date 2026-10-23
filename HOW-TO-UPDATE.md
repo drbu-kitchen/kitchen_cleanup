@@ -221,11 +221,11 @@ The row order in `roles.csv` is also the order roles appear on the cards.
 2. Open the app. If it's installed on your phone, close it fully and
    open it again.
 3. **Scroll to the very bottom.** The dark footer says something like
-   *"Shift list: 17 students, 41 shifts a week."*
+   *"Shift list: 18 students, 42 shifts a week."*
    - If that's all it says, everything is fine.
    - If there's **yellow text starting "Check…"**, it tells you what to
-     fix. For example: *"Bethh isn't in students.csv"*, *"Beth has 1
-     shift (expected 2 to 4)"*, *"shifts.csv line 5: Adam can't do Buckets
+     fix. For example: *"Bethh isn't in students.csv"*, *"Beth is in
+     students.csv but has no shifts"*, *"shifts.csv line 5: Adam can't do Buckets
      & Composting"*, *"'Mopping' isn't a role in roles.csv"*, or *"The
      timesheet portal link should start with https://"*. Fix the file and
      upload it again.

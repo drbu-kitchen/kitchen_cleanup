@@ -1890,10 +1890,8 @@ p{margin:0}
       count[who] = (count[who] || 0) + 1;
       out.shifts.push({ who: who, day: d, role: role.name, as: role.cover.name, group: role.group, r: role });
     });
+    /* any number of shifts is fine (the user asked) */
     out.names = Object.keys(count).sort(function (a, b) { return a.localeCompare(b); });
-    out.names.forEach(function (n) {
-      if (count[n] < 2 || count[n] > 4) P.push(n + " has " + count[n] + " shift" + (count[n] === 1 ? "" : "s") + " (expected 2 to 4).");
-    });
     Object.keys(people).forEach(function (n) { if (!count[n]) P.push(n + " is in " + FILES.students + " but has no shifts."); });
     if (answersText != null) out.avail = readAvailability(answersText, out.names, out.availProblems);
     var notes = readNotes(notesText, out.names, P);

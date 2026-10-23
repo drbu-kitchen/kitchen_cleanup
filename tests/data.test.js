@@ -65,7 +65,8 @@ function shiftOf(d, who, day) { return d.shifts.filter(function (x) { return x.w
 function coverOf(d, who, day) { var s = shiftOf(d, who, day); return s ? s.cover : null; }
 /* swap one piece of a CSV for another */
 function edit(text, from, to) { if (text.indexOf(from) < 0) throw new Error("no " + from); return text.replace(from, to); }
-var MEN = /^(Adam|Adrian|Vayu|Ben Kong)$/;
+/* the men, from students.csv */
+var MEN = new RegExp("^(" + b.parseCSV(STUDENTS).slice(1).filter(function (r) { return /^m/i.test((r[1] || "").trim()); }).map(function (r) { return r[0].trim(); }).join("|") + ")$");
 
 /* --------------------------------------------------------------- esc */
 check("esc", b.esc("<a href=\"x\">Tom & 'Jo'</a>"), "&lt;a href=&quot;x&quot;&gt;Tom &amp; &#39;Jo&#39;&lt;/a&gt;");
@@ -90,7 +91,7 @@ check("yes", ["Yes", "y", "TRUE", "No", "", "maybe"].map(b.yes), [true, true, tr
 /* ---------------------------------------------- the shipped files */
 var real = build();
 check("shipped: no problems", real.problems, []);
-check("shipped: 17 students, 41 shifts", [real.names.length, real.shifts.length], [17, 41]);
+check("shipped: 18 students, 42 shifts", [real.names.length, real.shifts.length], [18, 42]);
 var expected = b.parseCSV(read("tests/expected-cover-lists.csv")).slice(1);
 check("shipped: every cover list matches the reference", expected.filter(function (r) {
   return JSON.stringify(coverOf(real, r[0], r[1])) !== JSON.stringify(r[3] ? r[3].split(", ") : []);
@@ -130,7 +131,7 @@ check("7: Not available on Monday: no one is offered Beth's Monday in return",
   withAns.shifts.some(function (s) { return s.who === "Beth" && Object.keys(s.swap).some(function (n) { return s.swap[n].some(function (x) { return x.day === 0; }); }); }), false);
 check("7: Maybe: Lavanya moves to just above the last resort on Adam's Monday", (function () {
   var s = shiftOf(withAns, "Adam", "Monday"); return [s.cover.indexOf("Lavanya"), s.lastFrom - 1];
-})(), [2, 2]);
+})(), [3, 3]);
 check("7: Adam can't cover on Wednesday, so Roxanne (only Wednesday) is a last resort for him", (function () {
   var s = shiftOf(withAns, "Adam", "Monday"); return [s.cover.indexOf("Roxanne") >= s.lastFrom, s.swap.Roxanne];
 })(), [true, []]);
@@ -207,7 +208,7 @@ check("2: men can do Pots & Pans", R("Beth", "Thursday").cover.indexOf("Adrian")
 
 /* Rule 3: special students (Ben Kong: Recycling only, both ways) */
 check("3: Ben Kong only ever covers Recycling", real.shifts.filter(function (s) { return s.role !== "Recycling" && s.cover.indexOf("Ben Kong") >= 0; }).length, 0);
-check("3: Ben Kong covers Recycling", R("Vayu", "Monday").main, ["Ben Kong"]);
+check("3: Ben Kong covers Recycling (first, as it's his job)", R("Vayu", "Monday").main, ["Ben Kong", "Rafael"]);
 check("3: Ben Kong's shifts are covered only by those who do Recycling", real.shifts.filter(function (s) {
   return s.who === "Ben Kong" && s.cover.some(function (c) { return !/^(Adam|Adrian|Vayu)$/.test(c); });
 }).length, 0);
@@ -216,16 +217,16 @@ check("3: Ben Kong swaps Recycling for Recycling", [R("Ben Kong", "Friday").main
 /* Rule 4: the same day, where the hours allow a double */
 check("4: Pots & Pans: Recycling that day, then Lunch Monitor that day, last", R("Adam", "Monday").last, ["Irina", "Thanh", "Adrian", "Vayu", "Shuxing"]);
 check("4: Buckets: Lunch Monitor that day, last; never Pots & Pans that day", R("Amelia", "Thursday").cover, ["Irina", "Nita", "Roxanne", "Ivwananji", "Priya", "Tsering", "Thanh", "Shuxing"]);
-check("4: Recycling: a man on Pots & Pans that day, last (recycling can wait till after)", [R("Adam", "Thursday").cover, R("Adam", "Thursday").main], [["Adrian", "Ben Kong", "Vayu"], ["Adrian", "Ben Kong"]]);
+check("4: Recycling: a man on Pots & Pans that day, last (recycling can wait till after)", [R("Adam", "Thursday").cover, R("Adam", "Thursday").main], [["Adrian", "Ben Kong", "Rafael", "Vayu"], ["Adrian", "Ben Kong", "Rafael"]]);
 check("4: Lunch Monitor: no one working that day", R("Shuxing", "Monday").cover, ["Thanh"]);
 check("4: no one covers their own shift", real.shifts.every(function (s) { return s.cover.indexOf(s.who) < 0; }), true);
 check("4: no one doing the same job that day covers it", R("Adrian", "Monday").cover.indexOf("Vayu"), -1);
 check("4: a same-day backup is last resort even with a swap", [R("Adrian", "Monday").last, R("Adrian", "Monday").swap.Adam],
-  [["Adam"], [S("Tuesday", "Pots & Pans"), S("Thursday", "Recycling")]]);
+  [["Rafael", "Adam"], [S("Tuesday", "Pots & Pans"), S("Thursday", "Recycling")]]);
 
 /* Rule 5: the order, and swaps */
 check("5: the main list is those you could cover back; the last resort is the rest",
-  [R("Adam", "Monday").main, shiftOf(real, "Adam", "Monday").lastFrom], [["Beth", "Lavanya", "Priya", "Roxanne", "Tsering"], 5]);
+  [R("Adam", "Monday").main, shiftOf(real, "Adam", "Monday").lastFrom], [["Rafael", "Beth", "Lavanya", "Priya", "Roxanne", "Tsering"], 6]);
 check("5: same job, then same group, then another group, each fewest shifts first",
   R("Aryashree", "Monday").cover, ["Irina", "Roxanne", "Beth", "Lavanya", "Priya", "Tsering", "Thanh", "Shuxing"]);
 check("5: swaps go shift by shift: Roxanne's Wednesday Pots & Pans, not her Buckets", R("Adam", "Monday").swap.Roxanne, [S("Wednesday", "Pots & Pans")]);
@@ -236,7 +237,7 @@ check("5: never a swap on the day being covered", real.shifts.every(function (s)
   return Object.keys(s.swap).every(function (n) { return s.swap[n].every(function (x) { return x.day !== s.day; }); });
 }), true);
 check("5: Aryashree, Tuesday: the last resort is those with no shift she could take",
-  [R("Aryashree", "Tuesday").last, shiftOf(real, "Aryashree", "Tuesday").lastFrom], [["Huiyi", "Amelia", "Shuxing", "Thanh"], 6]);
+  [R("Aryashree", "Tuesday").last, shiftOf(real, "Aryashree", "Tuesday").lastFrom], [["Huiyi", "Amelia", "Shuxing", "Thanh"], 7]);
 check("5: Aryashree can swap with Adrian for his Pots & Pans, not his Recycling",
   R("Aryashree", "Tuesday").swap.Adrian, [S("Wednesday", "Pots & Pans"), S("Friday", "Pots & Pans")]);
 check("5: a lunch monitor who can do everything a backup does swaps both ways", shiftOf(real, "Thanh", "Tuesday").lastFrom, 2);
@@ -247,15 +248,15 @@ check("5: the last resort line is inside the list", real.shifts.every(function (
 
 /* the switches in roles.csv and students.csv */
 var anyRec = build(null, null, edit(ROLES, "Recycling,Recycling,,Men only,No,", "Recycling,Recycling,,Any,No,"));
-check("switch: Recycling to Any lets women cover it, after those who do Recycling", coverOf(anyRec, "Adam", "Thursday").slice(0, 3), ["Adrian", "Ben Kong", "Ivwananji"]);
+check("switch: Recycling to Any lets women cover it, after those who do Recycling", coverOf(anyRec, "Adam", "Thursday").slice(0, 4), ["Adrian", "Ben Kong", "Rafael", "Ivwananji"]);
 check("switch: Recycling to Any adds no problems", anyRec.problems, []);
 var womenRec = build(null, null, edit(ROLES, "Recycling,Recycling,,Men only,No,", "Recycling,Recycling,,Women only,No,"));
 has("switch: Recycling to Women only flags the men on it", womenRec.problems, "Adam can't do Recycling");
 var anyBuckets = build(null, null, edit(ROLES, "Buckets & Composting,Dishwashing,,Women only,", "Buckets & Composting,Dishwashing,,Any,"));
-check("switch: Buckets to Any lets men cover it (Ben Kong still can't)", coverOf(anyBuckets, "Amelia", "Thursday").filter(function (c) { return MEN.test(c); }), ["Adrian"]);
+check("switch: Buckets to Any lets men cover it (Ben Kong still can't)", coverOf(anyBuckets, "Amelia", "Thursday").filter(function (c) { return MEN.test(c); }), ["Rafael", "Adrian"]);
 var freeBen = build(null, edit(STUDENTS, "Ben Kong,M,,Recycling,Recycling,Yes", "Ben Kong,M,,,,"));
 check("switch: Ben Kong with no options covers Pots & Pans", coverOf(freeBen, "Adam", "Monday").indexOf("Ben Kong") >= 0, true);
-check("switch: and anyone who can do Recycling covers his", coverOf(freeBen, "Ben Kong", "Tuesday"), ["Adrian", "Adam", "Vayu"]);
+check("switch: and anyone who can do Recycling covers his", coverOf(freeBen, "Ben Kong", "Tuesday"), ["Adrian", "Rafael", "Adam", "Vayu"]);
 var benCovers = build(null, edit(STUDENTS, "Ben Kong,M,,Recycling,Recycling,Yes", "Ben Kong,M,,,Recycling,Yes"));
 check("switch: Only covers alone keeps him to covering Recycling", benCovers.shifts.filter(function (s) { return s.role !== "Recycling" && s.cover.indexOf("Ben Kong") >= 0; }).length, 0);
 check("switch: Only covers adds no problems", benCovers.problems, []);
@@ -275,12 +276,12 @@ check("switch: Lunch Monitor untrained opens it to all women", coverOf(untrained
 var bethTrained = build(null, edit(STUDENTS, "Beth,F,,,,", "Beth,F,Lunch Monitor,,,"));
 check("switch: training a student adds them to Lunch Monitor lists", coverOf(bethTrained, "Thanh", "Tuesday").indexOf("Beth") >= 0, true);
 var noSame = build(null, null, edit(ROLES, "Pots & Pans,Dishwashing,,Any,No,Recycling; Lunch Monitor", "Pots & Pans,Dishwashing,,Any,No,"));
-check("switch: no same-day backups for Pots & Pans", coverOf(noSame, "Adam", "Monday"), ["Beth", "Lavanya", "Priya", "Roxanne", "Tsering", "Irina", "Thanh"]);
+check("switch: no same-day backups for Pots & Pans", coverOf(noSame, "Adam", "Monday"), ["Rafael", "Beth", "Lavanya", "Priya", "Roxanne", "Tsering", "Irina", "Thanh"]);
 check("switch: and no doubles as swaps either", shiftOf(noSame, "Adam", "Monday").swap.Beth, [S("Wednesday", "Pots & Pans")]);
 var lmFirst = build(null, null, edit(ROLES, "Recycling; Lunch Monitor", "Lunch Monitor; Recycling"));
 check("switch: same-day order follows the list", coverOf(lmFirst, "Adam", "Monday").slice(-3), ["Shuxing", "Adrian", "Vayu"]);
 var noRecSame = build(null, null, edit(ROLES, "Recycling,Recycling,,Men only,No,Pots & Pans", "Recycling,Recycling,,Men only,No,"));
-check("switch: no same-day backups for Recycling", coverOf(noRecSame, "Adam", "Thursday"), ["Adrian", "Ben Kong"]);
+check("switch: no same-day backups for Recycling", coverOf(noRecSame, "Adam", "Thursday"), ["Adrian", "Ben Kong", "Rafael"]);
 var leaderSame = build(null, null, edit(ROLES, "Recycling,Recycling,,Men only,No,Pots & Pans", "Recycling,Recycling,,Men only,No,Shift Leader"));
 check("switch: a same-day backup named Shift Leader means Pots & Pans", coverOf(leaderSame, "Adam", "Thursday"), R("Adam", "Thursday").cover);
 var ownGroup = build(null, null, edit(ROLES, "Buckets & Composting,Dishwashing,", "Buckets & Composting,,"));
@@ -314,8 +315,9 @@ has("shifts: student not in students.csv", probs(SHIFTS + "Zed,Friday,Pots & Pan
 has("shifts: man on Buckets", probs(edit(SHIFTS, "Adam,Thursday,Recycling", "Adam,Thursday,Buckets & Composting")), "Adam can't do Buckets & Composting");
 has("shifts: Ben Kong off Recycling", probs(edit(SHIFTS, "Ben Kong,Tuesday,Recycling", "Ben Kong,Tuesday,Pots & Pans")), "Ben Kong can't do Pots & Pans");
 has("shifts: untrained Lunch Monitor", probs(edit(SHIFTS, "Beth,Wednesday,Pots & Pans", "Beth,Wednesday,Lunch Monitor")), "Beth can't do Lunch Monitor");
-has("shifts: too few", probs(SHIFTS + "Zed,Friday,Pots & Pans\r\n", STUDENTS + "Zed,M,,\r\n"), "Zed has 1 shift (expected 2 to 4)");
-check("shifts: duplicate row ignored", build(SHIFTS + "Adam,Monday,Pots & Pans\r\n").shifts.length, 41);
+check("shifts: any number of shifts is fine, one included", probs(SHIFTS + "Zed,Friday,Pots & Pans\r\n", STUDENTS + "Zed,M,,\r\n"), []);
+has("shifts: in students.csv with no shifts", probs(null, STUDENTS + "Zed,M,,\r\n"), "Zed is in students.csv but has no shifts");
+check("shifts: duplicate row ignored", build(SHIFTS + "Adam,Monday,Pots & Pans\r\n").shifts.length, 42);
 var ctor = build("Student,Shift day,Role\nconstructor,Monday,Pots & Pans\nconstructor,Tuesday,Pots & Pans\n", "Student,Gender,Only does,Trained for\nconstructor,F,,\n", null, null, "");
 var noOnly = build(null, STUDENTS.replace(/^(\uFEFF?)Student,Gender,Trained for,Only does,/, "$1Student,Gender,Trained for,Was only does,"));
 check("students.csv: the Only does column may be left out", [noOnly.problems, coverOf(noOnly, "Adam", "Thursday").indexOf("Ben Kong") >= 0], [[], true]);

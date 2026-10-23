@@ -332,7 +332,7 @@ function serve(dir, port) {
   check("name cleared", await p.evaluate(function () { return localStorage.getItem("kitchen.me"); }), null);
   await p.evaluate(function () { localStorage.setItem("kitchen.me", "Ghost"); }); await p.reload(); await ready(p);
   check("unknown saved name dropped", [await p.inputValue("#me"), await p.evaluate(function () { return localStorage.getItem("kitchen.me"); })], ["", null]);
-  check("footer: clean data", await text(p, "#data-status"), "Shift list: 17 students, 41 shifts a week.");
+  check("footer: clean data", await text(p, "#data-status"), "Shift list: 18 students, 42 shifts a week.");
 
   /* ------------------------------------------------------------- tabs */
   await p.selectOption("#me", "Beth");
@@ -692,7 +692,7 @@ function serve(dir, port) {
   await p.waitForFunction(function () { return /Availability answers/.test(document.getElementById("data-status").textContent); });
   truthy("answers missing: footer says everyone counts as available", /Availability answers: not loaded, so everyone counts as available\./.test(await text(p, "#data-status")));
   check("answers missing: the plain lists", await p.$$eval(".shift.k0 .cover .cn", function (n) { return n.map(function (x) { return x.textContent; }); }),
-    ["Beth", "Lavanya", "Priya", "Roxanne", "Tsering", "Irina", "Thanh", "Adrian", "Vayu", "Shuxing"]);
+    ROWS.filter(function (r) { return r.who === "Adam" && r.day === "Monday"; })[0].cover);
   await p.context().close();
   p = await page({ init: function () { localStorage.setItem("kitchen.me", "Adam"); },
     settings: "Setting,Value\nStudent Kitchen Manager,Art\nWork Study Manager,Nahelia\nTimesheet portal link,https://www.drbu.edu/timesheet\n" });
@@ -813,7 +813,7 @@ function serve(dir, port) {
   await p.reload(); await ready(p);
   await ctx.setOffline(true);
   await p.reload(); await ready(p);
-  check("works offline", [await text(p, "#data-status"), (await p.$$eval("#me option", function (o) { return o.length; })) - 1], ["Shift list: 17 students, 41 shifts a week.", 17]);
+  check("works offline", [await text(p, "#data-status"), (await p.$$eval("#me option", function (o) { return o.length; })) - 1], ["Shift list: 18 students, 42 shifts a week.", 18]);
   await ctx.setOffline(false);
   fs.writeFileSync(path.join(tmp, "sw.js"), fs.readFileSync(path.join(tmp, "sw.js"), "utf8").replace(/CACHE = "[^"]+"/, 'CACHE = "kitchen-test-next"'));
   var reloaded = false;
