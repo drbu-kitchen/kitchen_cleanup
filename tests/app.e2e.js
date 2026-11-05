@@ -332,7 +332,7 @@ function serve(dir, port) {
   check("name cleared", await p.evaluate(function () { return localStorage.getItem("kitchen.me"); }), null);
   await p.evaluate(function () { localStorage.setItem("kitchen.me", "Ghost"); }); await p.reload(); await ready(p);
   check("unknown saved name dropped", [await p.inputValue("#me"), await p.evaluate(function () { return localStorage.getItem("kitchen.me"); })], ["", null]);
-  check("footer: clean data", await text(p, "#data-status"), "Shift list: 18 students, 42 shifts a week.");
+  check("footer: clean data", await text(p, "#data-status"), "Shift list: 18 students, 43 shifts a week.");
 
   /* ------------------------------------------------------------- tabs */
   await p.selectOption("#me", "Beth");
@@ -813,7 +813,7 @@ function serve(dir, port) {
   await p.reload(); await ready(p);
   await ctx.setOffline(true);
   await p.reload(); await ready(p);
-  check("works offline", [await text(p, "#data-status"), (await p.$$eval("#me option", function (o) { return o.length; })) - 1], ["Shift list: 18 students, 42 shifts a week.", 18]);
+  check("works offline", [await text(p, "#data-status"), (await p.$$eval("#me option", function (o) { return o.length; })) - 1], ["Shift list: 18 students, 43 shifts a week.", 18]);
   await ctx.setOffline(false);
   fs.writeFileSync(path.join(tmp, "sw.js"), fs.readFileSync(path.join(tmp, "sw.js"), "utf8").replace(/CACHE = "[^"]+"/, 'CACHE = "kitchen-test-next"'));
   var reloaded = false;

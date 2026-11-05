@@ -221,7 +221,7 @@ The row order in `roles.csv` is also the order roles appear on the cards.
 2. Open the app. If it's installed on your phone, close it fully and
    open it again.
 3. **Scroll to the very bottom.** The dark footer says something like
-   *"Shift list: 18 students, 42 shifts a week."*
+   *"Shift list: 18 students, 43 shifts a week."*
    - If that's all it says, everything is fine.
    - If there's **yellow text starting "Check…"**, it tells you what to
      fix. For example: *"Bethh isn't in students.csv"*, *"Beth is in
