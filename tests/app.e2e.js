@@ -350,6 +350,23 @@ function serve(dir, port) {
   check("call out: sick or unplanned first, then planned", await p.$$eval(".path-h h2", function (h) { return h.map(function (x) { return x.textContent; }); }), ["Sick or Unplanned Absence", "Planned Absence", "Missed Shift"]);
   check("call out: the four situations, in the first person, in order", await p.$$eval(".sit h3", function (h) { return h.map(function (x) { return x.closest(".path").className.slice(5) + " " + x.textContent; }); }),
     ["k5 I can't make it today", "k5 Not sure if I can make it today", "k5 I'm too sick to get out of bed", "k5 I forgot my shift, and it has already started", "k1 I will miss a shift in the future", "k0 Oh no! I missed my shift"]);
+  check("call out: the load graphic comes first, before the jump list", await p.evaluate(function () {
+    var body = document.querySelector("#view-callout .body .in");
+    return [body.firstElementChild.id, !!(document.getElementById("load").compareDocumentPosition(document.querySelector(".jump")) & 4)];
+  }), ["load", true]);
+  check("call out: the load graphic's words", [await text(p, ".ld-h"), await text(p, ".ld-tag"), await text(p, ".ld-f")],
+    ["THE DISHES DON'T SHRINK. Your teammates take your share.", "EVERY ABSENCE LANDS ON SOMEONE", "Same dishes. Same standard. Fewer hands."]);
+  check("call out: a row for 5, 4, 3 and 2 of 5: who's there, how long each works, and how much more", await p.$$eval(".ld-r", function (r) {
+    return r.map(function (x) {
+      return [x.querySelectorAll(".ld-ppl svg:not(.off)").length, x.querySelectorAll(".ld-ppl svg.off").length,
+        [].map.call(x.querySelector(".ld-c").children, function (c) { return c.textContent.replace(/\s+/g, " ").trim(); }).join(" "), x.getAttribute("aria-label")];
+    });
+  }), [[5, 0, "5 of 5 · 1 hr", "5 of 5 here: 1 hr each"], [4, 1, "4 of 5 · 1 hr 15 min +25%", "4 of 5 here: 1 hr 15 min each (+25%)"],
+       [3, 2, "3 of 5 · 1 hr 40 min +67%", "3 of 5 here: 1 hr 40 min each (+67%)"], [2, 3, "2 of 5 · 2 hr 30 min +150%", "2 of 5 here: 2 hr 30 min each (+150%)"]]);
+  check("call out: the bars grow with the time, green to red", await p.$$eval(".ld-bar", function (b) {
+    var w = b.map(function (x) { return x.getBoundingClientRect().width; });
+    return [Math.round(w[3] / w[0] * 10) / 10, Math.round(w[1] / w[0] * 100) / 100, b.map(function (x) { return getComputedStyle(x).backgroundColor; })];
+  }), [2.5, 1.25, ["rgb(64, 192, 87)", "rgb(252, 196, 25)", "rgb(253, 126, 20)", "rgb(224, 49, 49)"]]);
   check("call out: a jump list at the top, one button for each", await p.$$eval(".jump-b", function (b) { return b.map(function (x) { return x.getAttribute("data-jump") + " " + x.textContent; }); }),
     ["sit-today I can't make it today", "sit-maybe Not sure if I can make it today", "sit-sick I'm too sick to get out of bed", "sit-forgot I forgot my shift, and it has already started", "sit-plan I will miss a shift in the future",
      "sit-missed Oh no! I missed my shift"]);

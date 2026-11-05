@@ -122,6 +122,18 @@ and the tab shell from the second.
   readers are mostly young women whose first language is Chinese,
   Vietnamese, Thai or another Asian language, often in a panic. Write
   short, calm, everyday sentences, never a clipped flowchart.
+  - **The load graphic** (`loadGraphic()`, `#load`, `.ld`) comes first in
+    the body, for every student, named or not: the user's own picture,
+    "Every absence lands on someone", rebuilt in HTML so it reads at
+    320px, in both modes and in every language (`ld_*`). A black head
+    ("The dishes don't shrink." / "Your teammates take your share." in
+    `--warn` yellow; the picture's "Can't make your kitchen shift?" is left
+    out, as it repeated the tab's heading), a yellow tag, then a row each
+    for 5, 4, 3 and 2 of 5 on the shift: figures (absent ones dashed with
+    a rust X), a bar green to red (`--ld-0`…`--ld-3`, outlined in ink, its
+    length the time), and "4 of 5 · 1 hr 15 min +25%" (each works 5/n of
+    an hour). These durations are the user's and belong here; they are
+    not the shift's hours, which still never show.
   - **Jump list:** "What's happening?" has one button per situation
     (`.jump-b`, `data-jump`). It scrolls `#scroll`; it isn't a link, as
     the hash picks the tab. In the PDF the buttons link to their pages.

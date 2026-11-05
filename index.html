@@ -71,6 +71,8 @@ window.kitchenTheme();
   --gold:#e0a93f;
   --gold-edge:#a8741a;    /* the "!" mark's rim, so it holds 3:1 on white */
   --warn:#ffd43b; --warn-ink:#14181f;   /* the not-answered banner, alike in both modes */
+  /* Call out's load graphic: the bars, green to red, in both modes */
+  --ld-0:#40c057; --ld-1:#fcc419; --ld-2:#fd7e14; --ld-3:#e03131;
   --mark-bg:#14181f; --mark-fg:#ffffff;   /* the Today/Tomorrow marker: neutral, so no day hue swallows it */
   --rust-btn:#8c2f12;     /* rust under white text: the portal button, the badge */
   /* One hue per weekday (Mon first): a fill, a deeper ink for text, a wash. */
@@ -430,6 +432,30 @@ p{margin:0}
 .contacts li:last-child{border-bottom:0;padding-bottom:0}
 .contacts .nm{font-family:var(--display);font-size:19px;font-weight:600}
 
+/* ------------------------------------- Call out: every absence lands */
+/* the user's graphic, rebuilt so it reads at phone width, in both modes
+   and every language: a black and yellow head, then a row for 5, 4, 3
+   and 2 of 5 on the shift, with how long each one then works */
+.ld{border:2px solid var(--warn-ink);border-radius:10px;overflow:hidden;background:var(--white);text-align:center}
+:root[data-theme="dark"] .ld{border-color:var(--line)}
+.ld-h{background:var(--warn-ink);padding:12px 14px 13px;display:flex;flex-direction:column;gap:2px}
+.ld-h1{font-size:clamp(20px,6vw,25px);font-weight:700;line-height:1.15;color:#fff;text-transform:uppercase}
+.ld-h2{font-size:15px;font-weight:700;color:var(--warn)}
+.ld-tag{display:inline-block;margin:14px 12px 4px;padding:4px 10px;border:2px solid var(--warn-ink);background:var(--warn);color:var(--warn-ink);
+  font-size:13.5px;font-weight:700;text-transform:uppercase;line-height:1.3}
+.ld-rows{list-style:none;margin:0;padding:10px 12px 4px;display:flex;flex-direction:column;gap:10px;text-align:left}
+.ld-r{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:3px 8px}
+.ld-ppl{grid-row:span 2;display:flex;gap:0;color:var(--ink)}
+.ld-ppl svg{display:block;width:21px;height:23px}
+.ld-ppl .off{color:var(--ink-3)}
+.ld-ppl .x{stroke:var(--rust)}
+.ld-bar{height:14px;border:1.5px solid var(--ink);border-radius:3px;background:var(--b)}
+.ld-c{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 8px;font-size:13.5px;font-weight:700;color:var(--ink);line-height:1.3}
+.ld-c .nw,.ld-p{white-space:nowrap}
+.ld-p{color:var(--rust-deep)}
+.ld-f{margin:0;padding:8px 14px 12px;text-wrap:balance;font-size:14px;font-weight:700;color:var(--ink-2)}
+@media (min-width:600px){.ld-ppl svg{width:26px;height:28px}.ld-bar{height:18px}.ld-c{font-size:14.5px}}
+
 /* ------------------------------------------------------ Timesheet */
 /* the timesheet and the contact list: two cards alike, side by side where
    there's room; the timesheet keeps the loud button */
@@ -534,7 +560,7 @@ p{margin:0}
   .print-only{display:block}
   main.view[hidden]{display:block !important}
   main.view+main.view{break-before:page}
-  .cover li,.crew li,.step,.tpl,.avt tr,.shift-h,.path-h,.panel.due,.contacts li{break-inside:avoid}
+  .cover li,.crew li,.step,.tpl,.avt tr,.shift-h,.path-h,.panel.due,.contacts li,.ld{break-inside:avoid}
   .path-h,.shift-h,.sit h3{break-after:avoid}
   .me-pill::after,.backups>summary::after{display:none}
   .head .in{padding-top:18px;padding-bottom:16px}
@@ -603,6 +629,7 @@ p{margin:0}
     <p class="lead" data-t="co_lead"></p>
   </div></div>
   <div class="body"><div class="in">
+    <div class="ld" id="load"></div>
     <div id="callout-paths"></div>
 
     <div class="panel after">
@@ -876,6 +903,14 @@ p{margin:0}
       nofill_open: "Fill in the form",
       av_form_work: "You already work on {days}, so you count as not available then.",
       av_form_lower: "<b>Asked after the others:</b> {days}, because of what you wrote about those days.",
+      ld_h1: "The dishes don't shrink.",
+      ld_h2: "Your teammates take your share.",
+      ld_tag: "Every absence lands on someone",
+      ld_foot: "Same dishes. Same standard. Fewer hands.",
+      ld_of: "{n} of {all}",
+      ld_hr: "{h} hr",
+      ld_hrmin: "{h} hr {m} min",
+      ld_row: "{n} of {all} here: {time} each",
       status_avail: "Availability answers: {n} students.",
       status_avail_failed: "Availability answers: not loaded, so everyone counts as available."
     },
@@ -1035,6 +1070,14 @@ p{margin:0}
       nofill_open: "填写问卷",
       av_form_work: "你{days}本来就有班，所以这些日子算作没空。",
       av_form_lower: "<b>最后才问你：</b>{days}。这是根据你在问卷里对这些日子的说明。",
+      ld_h1: "碗盘不会变少。",
+      ld_h2: "你的那份，由队友替你做。",
+      ld_tag: "每一次缺席，都有人替你扛",
+      ld_foot: "一样的碗盘，一样的标准，更少的人手。",
+      ld_of: "{n}/{all} 人",
+      ld_hr: "{h} 小时",
+      ld_hrmin: "{h} 小时 {m} 分钟",
+      ld_row: "{n}/{all} 人到场：每人 {time}",
       status_avail: "空闲时间回答：{n}位学生。",
       status_avail_failed: "空闲时间回答：未能载入，所以每个人都算作有空。"
     },
@@ -1194,6 +1237,14 @@ p{margin:0}
       nofill_open: "填寫問卷",
       av_form_work: "你{days}本來就有班，所以這些日子算作沒空。",
       av_form_lower: "<b>最後才問你：</b>{days}。這是根據你在問卷裡對這些日子的說明。",
+      ld_h1: "碗盤不會變少。",
+      ld_h2: "你的那份，由隊友替你做。",
+      ld_tag: "每一次缺席，都有人替你扛",
+      ld_foot: "一樣的碗盤，一樣的標準，更少的人手。",
+      ld_of: "{n}/{all} 人",
+      ld_hr: "{h} 小時",
+      ld_hrmin: "{h} 小時 {m} 分鐘",
+      ld_row: "{n}/{all} 人到場：每人 {time}",
       status_avail: "空閒時間回答：{n}位學生。",
       status_avail_failed: "空閒時間回答：未能載入，所以每個人都算作有空。"
     },
@@ -1353,6 +1404,14 @@ p{margin:0}
       nofill_open: "กรอกแบบฟอร์ม",
       av_form_work: "คุณมีกะอยู่แล้ว: {days} จึงนับว่าไม่ว่างในวันเหล่านั้น",
       av_form_lower: "<b>จะถามคุณหลังคนอื่น:</b> {days} ตามที่คุณเขียนไว้ในแบบฟอร์มเกี่ยวกับวันเหล่านั้น",
+      ld_h1: "จานไม่ได้ลดลง",
+      ld_h2: "เพื่อนร่วมทีมต้องทำส่วนของคุณแทน",
+      ld_tag: "ทุกการขาด มีคนต้องรับภาระแทน",
+      ld_foot: "จานเท่าเดิม มาตรฐานเท่าเดิม แต่คนน้อยลง",
+      ld_of: "{n} จาก {all} คน",
+      ld_hr: "{h} ชม.",
+      ld_hrmin: "{h} ชม. {m} นาที",
+      ld_row: "มา {n} จาก {all} คน: คนละ {time}",
       status_avail: "คำตอบวันว่าง: นักศึกษา {n} คน",
       status_avail_failed: "คำตอบวันว่าง: โหลดไม่ได้ จึงนับว่าทุกคนว่าง"
     },
@@ -1512,6 +1571,14 @@ p{margin:0}
       nofill_open: "Điền phiếu",
       av_form_work: "Bạn đã có ca vào {days}, nên những ngày này được tính là không rảnh.",
       av_form_lower: "<b>Được hỏi sau những người khác:</b> {days}, theo những gì bạn đã viết về các ngày này.",
+      ld_h1: "Chén bát không vơi đi.",
+      ld_h2: "Đồng đội phải làm thay phần của bạn.",
+      ld_tag: "Mỗi lần vắng mặt, có người phải gánh",
+      ld_foot: "Vẫn chừng ấy chén bát. Vẫn tiêu chuẩn ấy. Ít người hơn.",
+      ld_of: "{n}/{all} người",
+      ld_hr: "{h} giờ",
+      ld_hrmin: "{h} giờ {m} phút",
+      ld_row: "{n}/{all} người có mặt: mỗi người {time}",
       status_avail: "Câu trả lời ngày rảnh: {n} sinh viên.",
       status_avail_failed: "Câu trả lời ngày rảnh: chưa tải được, nên mọi người được tính là rảnh."
     },
@@ -1666,6 +1733,14 @@ p{margin:0}
       nofill_open: "འགེང་ཤོག་འགེངས།",
       av_form_work: "{days} ལ་ཁྱེད་ལ་ལས་སྐོར་ཡོད་ཟིན་པས། ཉིན་དེ་དག་ལ་ཁོམ་པ་མེད་པར་བརྩི།",
       av_form_lower: "<b>གཞན་ལ་དྲིས་རྗེས་ཁྱེད་ལ་འདྲི།</b> {days}། ཁྱེད་ཀྱིས་ཉིན་དེ་དག་སྐོར་འགེང་ཤོག་ནང་བྲིས་པ་ལྟར་རེད།",
+      ld_h1: "ཕོར་སྡེར་ཉུང་དུ་མི་འགྲོ།",
+      ld_h2: "ཁྱེད་ཀྱི་ཆ་ཤས་དེ་རོགས་པ་ཚོས་ལེན་དགོས།",
+      ld_tag: "མི་གཅིག་མ་ཡོང་ན་མི་གཞན་ལ་འཁྲི།",
+      ld_foot: "ཕོར་སྡེར་གཅིག་པ། ཚད་གཞི་གཅིག་པ། ལག་པ་ཉུང་བ།",
+      ld_of: "{all} ནང་ནས་ {n}",
+      ld_hr: "ཆུ་ཚོད་ {h}",
+      ld_hrmin: "ཆུ་ཚོད་ {h} སྐར་མ་ {m}",
+      ld_row: "{all} ནང་ནས་ {n} ཡོད། མི་རེར་ {time}",
       status_avail: "ཁོམ་ཚོད་ལན། སློབ་མ་ {n}།",
       status_avail_failed: "ཁོམ་ཚོད་ལན། ཁ་ཕྱེ་མ་ཐུབ། དེར་བརྟེན་མི་ཚང་མ་ཁོམ་པ་ཡོད་པར་བརྩི།"
     }
@@ -2336,7 +2411,37 @@ p{margin:0}
   function contactLine() {
     return CONFIG.contactList ? '<span class="s cl">' + t("cl_need") + ' <a href="' + esc(CONFIG.contactList) + '" target="_blank" rel="noopener">' + t("cl_open") + "</a></span>" : "";
   }
+  /* "Every absence lands on someone": the same hour of dishes shared by
+     5, 4, 3 or 2 of the 5 on a shift. How long each then works (5/n of
+     an hour), and how much more that is. */
+  function loadGraphic() {
+    var ALL = 5, BASE = 60;
+    var person = function (here) {
+      return '<svg viewBox="0 0 24 26" aria-hidden="true"' + (here ? "" : ' class="off"') + ">" +
+        (here ? '<circle cx="12" cy="6.5" r="4.5" fill="currentColor"/><path d="M3 25v-5.5a7 7 0 0 1 7-7h4a7 7 0 0 1 7 7V25z" fill="currentColor"/>'
+              : '<circle cx="12" cy="6.5" r="4.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2 2"/>' +
+                '<path d="M3.7 25v-5.5a6.3 6.3 0 0 1 6.3-6.3h4a6.3 6.3 0 0 1 6.3 6.3V25z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2 2"/>' +
+                '<path class="x" d="M7 13.5l10 10M17 13.5l-10 10" stroke-width="3" stroke-linecap="round"/>') + "</svg>";
+    };
+    var rows = [];
+    for (var n = ALL; n >= 2; n--) {
+      var mins = BASE * ALL / n, h = Math.floor(mins / 60), m = Math.round(mins % 60), more = Math.round((ALL / n - 1) * 100);
+      var time = m ? t("ld_hrmin", { h: h, m: m }) : t("ld_hr", { h: h }), ppl = "";
+      for (var i = 0; i < ALL; i++) ppl += person(i < n);
+      rows.push('<li class="ld-r" data-n="' + n + '" role="img" aria-label="' + esc(t("ld_row", { n: n, all: ALL, time: time })) + (more ? " (+" + more + "%)" : "") + '">' +
+        '<span class="ld-ppl">' + ppl + "</span>" +
+        '<span class="ld-bar" style="--b:var(--ld-' + (ALL - n) + ");width:" + (mins / (BASE * ALL / 2) * 100).toFixed(1) + '%"></span>' +
+        '<span class="ld-c" aria-hidden="true"><span><span class="nw">' + t("ld_of", { n: n, all: ALL }) + " ·</span> " + '<span class="nw">' + time + "</span></span>" +
+        (more ? '<span class="ld-p">+' + more + "%</span>" : "") + "</span></li>");
+    }
+    return '<div class="ld-h"><span class="ld-h1">' + t("ld_h1") + '</span><span class="ld-h2">' + t("ld_h2") + "</span></div>" +
+      '<span class="ld-tag">' + t("ld_tag") + "</span>" +
+      '<ul class="ld-rows">' + rows.join("") + "</ul>" +
+      '<p class="ld-f">' + t("ld_foot") + "</p>";
+  }
+
   function renderCallout() {
+    $("load").innerHTML = loadGraphic();
     var km = { km: esc(kmName()) };
     $("callout-paths").innerHTML =
       '<nav class="jump" aria-label="' + t("jump_h") + '"><h4>' + t("jump_h") + "</h4>" + SITS.map(function (x) {
